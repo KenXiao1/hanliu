@@ -28,7 +28,7 @@ export function IssueShell({
   return (
     <div className="issue-shell">
       <header className="site-header">
-        <Link href={issueHomePath} className="site-mark">
+        <Link href="/" className="site-mark">
           <span className="site-mark-kicker">Celestial Reserve</span>
           <strong>{issue.title}</strong>
           <span>{issue.subtitle}</span>
