@@ -29,7 +29,7 @@ export function PageView({ pageView, issueRoot, preferences }: PageViewProps) {
       <header className="page-banner">
         <p className="eyebrow">版式模式</p>
         <h1>第 {page.pageNumber} 页</h1>
-        <p>保留 PDF 原版排印。深浅主题只切换页面外壳，不反相正文版面。</p>
+        <p>原版排印。</p>
       </header>
 
       <div className="layout-stage">

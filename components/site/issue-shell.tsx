@@ -35,7 +35,7 @@ export function IssueShell({
           <span>{issue.subtitle}</span>
         </Link>
         <p className="site-mark-copy">
-          以刊物质感保留原版排印，以网页阅读重释长文。主题、简繁、目录与评论同域协作。
+          原版排印与长文阅读，尽在一处。
         </p>
       </header>
 

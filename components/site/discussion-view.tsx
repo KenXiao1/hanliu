@@ -6,7 +6,7 @@ export function DiscussionView({ threadId }: { threadId: string }) {
       <header className="page-banner">
         <p className="eyebrow">整集讨论</p>
         <h1>第一集评论区</h1>
-        <p>简体与繁体页面共用同一讨论串，便于把整集反馈沉淀在一起。</p>
+        <p>在此讨论这一集的内容。</p>
       </header>
       <GiscusComments threadId={threadId} />
     </div>

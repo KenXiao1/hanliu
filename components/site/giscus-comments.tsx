@@ -11,8 +11,7 @@ export function GiscusComments({ threadId }: { threadId: string }) {
   if (!repo || !repoId || !category || !categoryId) {
     return (
       <div className="comment-placeholder">
-        <p>评论组件已预留，配置 `giscus` 环境变量后即可启用。</p>
-        <code>{threadId}</code>
+        <p>评论区即将开放。</p>
       </div>
     );
   }

@@ -1,13 +1,15 @@
+/* ── Variables ────────────────────────────────────────────── */
+
 :root {
   --bg: #f3efe3;
   --bg-elevated: rgba(252, 249, 241, 0.86);
-  --panel: rgba(251, 247, 236, 0.82);
+  --panel: rgba(251, 247, 236, 0.92);
   --text: #1b2724;
-  --muted: #58655f;
+  --muted: #4a5651;
   --accent: #b69242;
   --accent-strong: #d0ad5c;
   --border: rgba(91, 104, 96, 0.22);
-  --shadow: 0 32px 80px rgba(43, 53, 50, 0.12);
+  --shadow: 0 32px 80px rgba(43, 53, 50, 0.14);
   --reader-font-scale: 1;
   --reader-page-zoom: 1;
 }
@@ -15,14 +17,16 @@
 :root[data-theme="dark"] {
   --bg: #081717;
   --bg-elevated: rgba(7, 23, 23, 0.84);
-  --panel: rgba(13, 31, 30, 0.82);
+  --panel: rgba(13, 31, 30, 0.92);
   --text: #edf1e8;
-  --muted: #adc0b5;
+  --muted: #c0d0c6;
   --accent: #d4af66;
   --accent-strong: #f0d393;
   --border: rgba(205, 224, 212, 0.12);
   --shadow: 0 36px 80px rgba(0, 0, 0, 0.35);
 }
+
+/* ── Reset ────────────────────────────────────────────────── */
 
 * {
   box-sizing: border-box;
@@ -31,9 +35,7 @@
 html {
   min-height: 100%;
   background:
-    radial-gradient(circle at top, rgba(208, 173, 92, 0.18), transparent 26%),
-    radial-gradient(circle at 80% 18%, rgba(49, 104, 92, 0.18), transparent 22%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent),
+    radial-gradient(circle at top, rgba(208, 173, 92, 0.14), transparent 28%),
     var(--bg);
 }
 
@@ -42,23 +44,6 @@ body {
   min-height: 100vh;
   color: var(--text);
   font-family: var(--font-body), sans-serif;
-  background:
-    radial-gradient(circle at 20% 10%, rgba(255, 255, 255, 0.28), transparent 30%),
-    linear-gradient(180deg, rgba(204, 179, 118, 0.12), transparent 35%),
-    var(--bg);
-}
-
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.33;
-  background-image:
-    radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.4) 0 1px, transparent 1px),
-    radial-gradient(circle at 75% 35%, rgba(255, 255, 255, 0.28) 0 1px, transparent 1px),
-    radial-gradient(circle at 50% 70%, rgba(214, 175, 80, 0.16), transparent 20%);
-  background-size: 220px 220px, 260px 260px, 100% 100%;
 }
 
 a {
@@ -71,6 +56,8 @@ img {
   display: block;
 }
 
+/* ── Layout shell ─────────────────────────────────────────── */
+
 .series-home,
 .issue-shell {
   width: min(1380px, calc(100vw - 32px));
@@ -78,42 +65,62 @@ img {
   padding: 24px 0 48px;
 }
 
+/* ── Surface level 1 — primary content ────────────────────── */
+/* hero, article-sheet, layout-stage: glass + shadow          */
+
 .series-hero,
 .issue-hero,
-.page-banner,
-.issue-panel,
-.issue-card,
-.article-ribbon-card,
-.site-header,
-.reader-toolbar,
 .article-sheet,
-.discussion-section,
-.layout-stage,
-.toc-view {
-  backdrop-filter: blur(20px);
+.layout-stage {
+  backdrop-filter: blur(12px);
   background: var(--bg-elevated);
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
 }
 
-.series-hero,
+/* ── Surface level 2 — structural UI ─────────────────────── */
+/* header, toolbar, discussion, toc, page-banner: solid bg    */
+
+.site-header,
+.reader-toolbar,
+.discussion-section,
+.toc-view,
+.page-banner {
+  background: var(--panel);
+  border: 1px solid var(--border);
+}
+
+/* ── Surface level 3 — cards ─────────────────────────────── */
+/* issue-card, article-ribbon-card: minimal, accent top line  */
+
+.issue-card,
+.article-ribbon-card {
+  background: var(--panel);
+  border: none;
+  border-top: 2px solid var(--accent);
+}
+
+/* ── Hero sections ────────────────────────────────────────── */
+
+.series-hero {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 28px;
+  padding: 32px;
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  text-align: center;
+}
+
 .issue-hero {
   display: grid;
   grid-template-columns: 1.2fr 0.8fr;
   gap: 28px;
   padding: 32px;
-  border-radius: 28px;
+  border-radius: 20px;
   overflow: hidden;
   position: relative;
-}
-
-.series-hero::after,
-.issue-hero::after {
-  content: "";
-  position: absolute;
-  inset: auto -10% -35% 20%;
-  height: 220px;
-  background: radial-gradient(circle, rgba(209, 173, 99, 0.24), transparent 60%);
 }
 
 .eyebrow {
@@ -142,10 +149,13 @@ img {
   max-width: 10ch;
 }
 
+.series-copy h1 {
+  max-width: none;
+}
+
 .series-copy p,
 .issue-hero-copy p,
 .page-banner p,
-.issue-panel p,
 .site-mark-copy,
 .article-sheet p,
 .toc-item a,
@@ -161,22 +171,24 @@ img {
   margin-top: 24px;
 }
 
+.series-copy .series-actions {
+  justify-content: center;
+}
+
+/* ── Buttons & links ──────────────────────────────────────── */
+
 .hero-link,
 .hero-link-alt,
 .toolbar-chip,
 .toolbar-link,
-.page-nav a,
-.article-ribbon-card a,
-.issue-panel a {
+.page-nav a {
   min-height: 44px;
   cursor: pointer;
 }
 
 .hero-link,
 .hero-link-alt,
-.page-nav a,
-.article-ribbon-card a,
-.issue-panel a {
+.page-nav a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -185,6 +197,22 @@ img {
   border-radius: 999px;
   border: 1px solid rgba(195, 164, 87, 0.3);
   transition: transform 220ms ease, background-color 220ms ease, border-color 220ms ease;
+}
+
+/* Card links — text link style instead of pill buttons */
+.article-ribbon-card a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 180ms ease;
+  cursor: pointer;
+}
+
+.article-ribbon-card a:hover {
+  color: var(--accent-strong);
 }
 
 .hero-link {
@@ -199,53 +227,29 @@ img {
 .hero-link-alt:hover,
 .toolbar-chip:hover,
 .toolbar-link:hover,
-.page-nav a:hover,
-.article-ribbon-card a:hover,
-.issue-panel a:hover {
+.page-nav a:hover {
   transform: translateY(-1px);
   border-color: rgba(210, 178, 92, 0.6);
 }
 
-.series-orbit,
+/* ── Issue hero media ─────────────────────────────────────── */
+
 .issue-hero-media {
   position: relative;
   min-height: 360px;
-  border-radius: 24px;
+  border-radius: 16px;
   overflow: hidden;
   background:
     radial-gradient(circle at center, rgba(226, 201, 143, 0.8), rgba(35, 78, 73, 0.24) 45%, transparent 64%),
     linear-gradient(180deg, rgba(18, 47, 49, 0.8), rgba(12, 19, 20, 0.14));
 }
 
-.orbit-disc {
-  position: absolute;
-  inset: 14% 20%;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(248, 225, 173, 0.94), rgba(222, 174, 69, 0.16) 48%, transparent 70%);
-  box-shadow: 0 0 60px rgba(218, 191, 127, 0.25);
-}
-
-.orbit-callout {
-  position: absolute;
-  right: 22px;
-  bottom: 22px;
-  padding: 18px 20px;
-  border-radius: 18px;
-  background: rgba(8, 22, 22, 0.56);
-  color: #f8f2e5;
-}
-
-.orbit-callout span {
-  display: block;
-  margin-bottom: 6px;
-  color: rgba(255, 240, 208, 0.72);
-}
+/* ── Grids ────────────────────────────────────────────────── */
 
 .issue-grid,
-.article-ribbon,
-.issue-panels {
+.article-ribbon {
   display: grid;
-  gap: 20px;
+  gap: 16px;
   margin-top: 24px;
 }
 
@@ -257,15 +261,10 @@ img {
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
-.issue-panels {
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-}
-
 .issue-card,
-.article-ribbon-card,
-.issue-panel {
+.article-ribbon-card {
   padding: 24px;
-  border-radius: 24px;
+  border-radius: 16px;
 }
 
 .issue-card dl,
@@ -286,6 +285,8 @@ img {
   color: var(--accent);
 }
 
+/* ── Hero copy ────────────────────────────────────────────── */
+
 .issue-hero-copy,
 .series-copy {
   position: relative;
@@ -303,12 +304,14 @@ img {
   object-fit: cover;
 }
 
+/* ── Site header ──────────────────────────────────────────── */
+
 .site-header {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 24px;
   padding: 24px 28px;
-  border-radius: 24px;
+  border-radius: 16px;
   margin-bottom: 18px;
 }
 
@@ -325,15 +328,18 @@ img {
 }
 
 .site-mark strong {
-  font-size: 2.2rem;
+  font-size: 1.6rem;
 }
+
+/* ── Reader toolbar ───────────────────────────────────────── */
 
 .reader-toolbar {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 16px;
   padding: 18px 20px;
-  border-radius: 22px;
+  border-radius: 16px;
   margin-bottom: 24px;
 }
 
@@ -342,14 +348,6 @@ img {
   flex-wrap: wrap;
   align-items: center;
   gap: 10px;
-}
-
-.toolbar-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding-right: 8px;
-  color: var(--muted);
 }
 
 .toolbar-link,
@@ -362,6 +360,8 @@ img {
   color: var(--text);
   border-radius: 999px;
   padding: 10px 14px;
+  font-family: inherit;
+  font-size: inherit;
   transition: transform 220ms ease, border-color 220ms ease, background-color 220ms ease;
 }
 
@@ -370,6 +370,36 @@ img {
   background: linear-gradient(135deg, rgba(211, 170, 94, 0.22), rgba(54, 90, 84, 0.18));
   border-color: rgba(194, 158, 82, 0.45);
 }
+
+/* ── Settings panel ───────────────────────────────────────── */
+
+.toolbar-settings-wrap {
+  position: relative;
+  margin-left: auto;
+}
+
+.settings-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  min-width: 200px;
+}
+
+.settings-row {
+  display: flex;
+  gap: 8px;
+}
+
+/* ── Issue content ────────────────────────────────────────── */
 
 .issue-content {
   display: grid;
@@ -381,7 +411,7 @@ img {
 .toc-view,
 .layout-stage,
 .article-sheet {
-  border-radius: 24px;
+  border-radius: 16px;
 }
 
 .page-banner {
@@ -405,7 +435,7 @@ img {
   justify-content: space-between;
   gap: 16px;
   padding: 14px 18px;
-  border-radius: 18px;
+  border-radius: 16px;
   border: 1px solid transparent;
 }
 
@@ -422,6 +452,8 @@ img {
   padding-left: 48px;
 }
 
+/* ── Article layout ───────────────────────────────────────── */
+
 .article-layout {
   display: grid;
   gap: 24px;
@@ -429,10 +461,6 @@ img {
 
 .article-sheet {
   padding: 26px;
-}
-
-.article-banner p:last-child {
-  font-family: ui-monospace, SFMono-Regular, monospace;
 }
 
 .article-columns {
@@ -446,7 +474,7 @@ img {
   top: 20px;
   align-self: start;
   padding: 20px;
-  border-radius: 18px;
+  border-radius: 16px;
   background: var(--panel);
   border: 1px solid var(--border);
 }
@@ -504,9 +532,11 @@ img {
 .article-gallery figure {
   margin: 0;
   overflow: hidden;
-  border-radius: 18px;
+  border-radius: 16px;
   border: 1px solid var(--border);
 }
+
+/* ── Discussion & comments ────────────────────────────────── */
 
 .discussion-section {
   padding: 24px;
@@ -514,18 +544,12 @@ img {
 
 .comment-placeholder {
   padding: 22px;
-  border-radius: 18px;
+  border-radius: 16px;
   border: 1px dashed var(--border);
   background: rgba(255, 255, 255, 0.04);
 }
 
-.comment-placeholder code {
-  display: inline-block;
-  margin-top: 8px;
-  padding: 8px 10px;
-  border-radius: 10px;
-  background: rgba(0, 0, 0, 0.14);
-}
+/* ── Layout reader (page view) ────────────────────────────── */
 
 .layout-reader {
   display: grid;
@@ -561,6 +585,8 @@ img {
   justify-self: end;
 }
 
+/* ── Responsive ───────────────────────────────────────────── */
+
 @media (max-width: 1024px) {
   .series-hero,
   .issue-hero,
@@ -587,13 +613,12 @@ img {
   .reader-toolbar,
   .issue-card,
   .article-ribbon-card,
-  .issue-panel,
   .article-sheet,
   .discussion-section,
   .toc-view,
   .page-banner {
     padding: 18px;
-    border-radius: 20px;
+    border-radius: 14px;
   }
 
   .series-copy h1,
@@ -608,6 +633,11 @@ img {
 
   .layout-page-image {
     width: min(92vw, 920px);
+  }
+
+  .settings-panel {
+    right: -10px;
+    min-width: 180px;
   }
 }
 

@@ -9,10 +9,7 @@ export function SeriesHome({ issues }: { issues: IssueManifest[] }) {
         <div className="series-copy">
           <p className="eyebrow">Celestial Reserve · 漢留</p>
           <h1>以星汉为经，以刊物为纬。</h1>
-          <p>
-            这个站点按“系列主站 + 分集子域”设计。当前实现第一集的在线阅读、简繁切换、light/dark
-            mode、目录导航与讨论区，并为后续各集保留统一的内容模型。
-          </p>
+          <p>每一集，一段新的旅程。</p>
           <div className="series-actions">
             <Link href="/issues" className="hero-link">
               浏览全集入口
@@ -20,13 +17,6 @@ export function SeriesHome({ issues }: { issues: IssueManifest[] }) {
             <Link href="/issues/issue-01" className="hero-link hero-link-alt">
               进入第一集
             </Link>
-          </div>
-        </div>
-        <div className="series-orbit">
-          <div className="orbit-disc" />
-          <div className="orbit-callout">
-            <span>子域设计</span>
-            <strong>issue-01.&lt;root-domain&gt;</strong>
           </div>
         </div>
       </section>

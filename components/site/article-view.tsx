@@ -24,9 +24,7 @@ export function ArticleView({
         <header className="page-banner article-banner">
           <p className="eyebrow">文章模式</p>
           <h1>{title}</h1>
-          <p>
-            页码 {view.pageRange} · 评论线程 `{view.article.commentThreadId}`
-          </p>
+          <p>页 {view.pageRange}</p>
         </header>
 
         <div className="article-columns">

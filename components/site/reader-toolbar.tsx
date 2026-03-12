@@ -1,10 +1,10 @@
 "use client";
 
-import { startTransition } from "react";
+import { startTransition, useEffect, useRef, useState } from "react";
 
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { BookOpenText, Languages, MoonStar, Palette, ScrollText, SunMedium, Type } from "lucide-react";
+import { BookOpenText, Languages, MoonStar, Palette, ScrollText, Settings, SunMedium, Type } from "lucide-react";
 
 import { buildReaderHref, clampFontScale, clampPageZoom } from "@/lib/reader-state";
 import type { ReaderPreferences } from "@/lib/preferences";
@@ -29,6 +29,23 @@ export function ReaderToolbar({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!settingsOpen) return;
+    function handleMouseDown(e: MouseEvent) {
+      if (
+        panelRef.current && !panelRef.current.contains(e.target as Node) &&
+        buttonRef.current && !buttonRef.current.contains(e.target as Node)
+      ) {
+        setSettingsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleMouseDown);
+    return () => document.removeEventListener("mousedown", handleMouseDown);
+  }, [settingsOpen]);
 
   const currentParams = new URLSearchParams(searchParams.toString());
   const decorateHref = (targetPath: string) =>
@@ -71,79 +88,87 @@ export function ReaderToolbar({
         </Link>
       </div>
 
-      <div className="toolbar-group">
-        <div className="toolbar-label">
-          <MoonStar size={16} />
-          <span>主题</span>
-        </div>
+      <div className="toolbar-settings-wrap">
         <button
+          ref={buttonRef}
           type="button"
-          className={preferences.theme === "light" ? "toolbar-chip is-active" : "toolbar-chip"}
-          onClick={() => replaceCurrent({ theme: "light" })}
+          className={settingsOpen ? "toolbar-link toolbar-accent" : "toolbar-link"}
+          onClick={() => setSettingsOpen((v) => !v)}
+          aria-expanded={settingsOpen}
+          aria-label="偏好设置"
         >
-          <SunMedium size={15} />
-          明
+          <Settings size={16} />
         </button>
-        <button
-          type="button"
-          className={preferences.theme === "dark" ? "toolbar-chip is-active" : "toolbar-chip"}
-          onClick={() => replaceCurrent({ theme: "dark" })}
-        >
-          <MoonStar size={15} />
-          暗
-        </button>
-      </div>
 
-      <div className="toolbar-group">
-        <div className="toolbar-label">
-          <Languages size={16} />
-          <span>字體</span>
-        </div>
-        <button
-          type="button"
-          className={preferences.script === "zh-Hans" ? "toolbar-chip is-active" : "toolbar-chip"}
-          onClick={() => replaceCurrent({ script: "zh-Hans" })}
-        >
-          简
-        </button>
-        <button
-          type="button"
-          className={preferences.script === "zh-Hant" ? "toolbar-chip is-active" : "toolbar-chip"}
-          onClick={() => replaceCurrent({ script: "zh-Hant" })}
-        >
-          繁
-        </button>
-      </div>
+        {settingsOpen && (
+          <div ref={panelRef} className="settings-panel">
+            <div className="settings-row">
+              <button
+                type="button"
+                className={preferences.theme === "light" ? "toolbar-chip is-active" : "toolbar-chip"}
+                onClick={() => replaceCurrent({ theme: "light" })}
+              >
+                <SunMedium size={15} />
+                明
+              </button>
+              <button
+                type="button"
+                className={preferences.theme === "dark" ? "toolbar-chip is-active" : "toolbar-chip"}
+                onClick={() => replaceCurrent({ theme: "dark" })}
+              >
+                <MoonStar size={15} />
+                暗
+              </button>
+            </div>
 
-      <div className="toolbar-group">
-        <div className="toolbar-label">
-          <Type size={16} />
-          <span>{currentRouteKind === "layout" ? "缩放" : "字号"}</span>
-        </div>
-        {currentRouteKind === "layout" ? (
-          <>
-            <button type="button" className="toolbar-chip" onClick={() => replaceCurrent({ pageZoom: String(clampPageZoom(preferences.pageZoom - 0.2)) })}>
-              远
-            </button>
-            <button type="button" className="toolbar-chip is-active">
-              {Math.round(clampPageZoom(preferences.pageZoom) * 100)}%
-            </button>
-            <button type="button" className="toolbar-chip" onClick={() => replaceCurrent({ pageZoom: String(clampPageZoom(preferences.pageZoom + 0.2)) })}>
-              近
-            </button>
-          </>
-        ) : (
-          <>
-            <button type="button" className="toolbar-chip" onClick={() => replaceCurrent({ fontScale: String(clampFontScale(preferences.fontScale - 0.1)) })}>
-              小
-            </button>
-            <button type="button" className="toolbar-chip is-active">
-              {Math.round(clampFontScale(preferences.fontScale) * 100)}%
-            </button>
-            <button type="button" className="toolbar-chip" onClick={() => replaceCurrent({ fontScale: String(clampFontScale(preferences.fontScale + 0.1)) })}>
-              大
-            </button>
-          </>
+            <div className="settings-row">
+              <button
+                type="button"
+                className={preferences.script === "zh-Hans" ? "toolbar-chip is-active" : "toolbar-chip"}
+                onClick={() => replaceCurrent({ script: "zh-Hans" })}
+              >
+                <Languages size={15} />
+                简
+              </button>
+              <button
+                type="button"
+                className={preferences.script === "zh-Hant" ? "toolbar-chip is-active" : "toolbar-chip"}
+                onClick={() => replaceCurrent({ script: "zh-Hant" })}
+              >
+                繁
+              </button>
+            </div>
+
+            <div className="settings-row">
+              {currentRouteKind === "layout" ? (
+                <>
+                  <button type="button" className="toolbar-chip" onClick={() => replaceCurrent({ pageZoom: String(clampPageZoom(preferences.pageZoom - 0.2)) })}>
+                    <Type size={15} />
+                    远
+                  </button>
+                  <button type="button" className="toolbar-chip is-active">
+                    {Math.round(clampPageZoom(preferences.pageZoom) * 100)}%
+                  </button>
+                  <button type="button" className="toolbar-chip" onClick={() => replaceCurrent({ pageZoom: String(clampPageZoom(preferences.pageZoom + 0.2)) })}>
+                    近
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button type="button" className="toolbar-chip" onClick={() => replaceCurrent({ fontScale: String(clampFontScale(preferences.fontScale - 0.1)) })}>
+                    <Type size={15} />
+                    小
+                  </button>
+                  <button type="button" className="toolbar-chip is-active">
+                    {Math.round(clampFontScale(preferences.fontScale) * 100)}%
+                  </button>
+                  <button type="button" className="toolbar-chip" onClick={() => replaceCurrent({ fontScale: String(clampFontScale(preferences.fontScale + 0.1)) })}>
+                    大
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
         )}
       </div>
     </div>

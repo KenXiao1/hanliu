@@ -36,9 +36,7 @@ export function IssueHome({
           <p className="eyebrow">第一集在线阅读</p>
           <h1>{issue.title}</h1>
           <p className="issue-subtitle">{issue.subtitle}</p>
-          <p>
-            采用双阅读模式。`版式模式`保留原刊图文气息，`文章模式`提供长文重排、字号调节与移动端舒适阅读。
-          </p>
+          <p>翻阅原版排印，或以文章形式细读。</p>
           <div className="series-actions">
             <Link
               href={withSearchParams(`${issueHomePath.replace(/\/$/, "")}/read/page/1`, {
@@ -93,22 +91,6 @@ export function IssueHome({
         ))}
       </section>
 
-      <section className="issue-panels">
-        <div className="issue-panel">
-          <h3>目录与结构</h3>
-          <p>沿用 PDF 书签层级，整集目录和文章内目录分开呈现，后续各集可复用同一结构。</p>
-          <Link href={tocPath}>查看全集目录</Link>
-        </div>
-        <div className="issue-panel">
-          <h3>简繁切换</h3>
-          <p>简繁内容并行抽取，自同一路由切换，保持当前文章或当前页不丢失。</p>
-        </div>
-        <div className="issue-panel">
-          <h3>评论区</h3>
-          <p>整集与单篇文章各自持有 `giscus` 讨论串，简繁页面共用线程。</p>
-          <Link href={discussionPath}>进入整集讨论</Link>
-        </div>
-      </section>
     </div>
   );
 }

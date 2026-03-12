@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Noto_Sans_TC, Noto_Serif_TC } from "next/font/google";
+import { LXGW_WenKai_TC, Noto_Serif_TC } from "next/font/google";
 
 import "./globals.css";
 
-const bodyFont = Noto_Sans_TC({
+const bodyFont = LXGW_WenKai_TC({
   subsets: ["latin"],
-  weight: ["400", "500", "700"],
+  weight: ["400", "700"],
   variable: "--font-body"
 });
 
