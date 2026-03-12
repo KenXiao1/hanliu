@@ -47,7 +47,7 @@ export function SeriesHome({ issues }: { issues: IssueManifest[] }) {
             </Link>
             <Link
               href="https://www.zhihu.com/column/c_1943336370526454758"
-              className="series-social-link"
+              className="series-social-link series-social-link-glyph"
               target="_blank"
               rel="noreferrer"
               aria-label="知乎"
@@ -85,17 +85,5 @@ export function SeriesHome({ issues }: { issues: IssueManifest[] }) {
 }
 
 function ZhihuIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
-      <rect x="3" y="4" width="18" height="16" rx="4" fill="currentColor" opacity="0.14" />
-      <path
-        d="M8 8.25h6.9v1.6H8zm0 2.95h8v1.6H8zm0 2.95h6.25v1.6H8zm8.55-4.95H19v6.55h-2.45m0-6.55v6.55"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+  return <span aria-hidden="true">知</span>;
 }

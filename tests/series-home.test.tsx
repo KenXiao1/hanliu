@@ -61,4 +61,10 @@ describe("SeriesHome", () => {
       "https://www.zhihu.com/column/c_1943336370526454758"
     );
   });
+
+  it("renders a legible Zhihu mark for the external link", () => {
+    render(<SeriesHome issues={[issue]} />);
+
+    expect(screen.getByRole("link", { name: "知乎" }).textContent).toContain("知");
+  });
 });
