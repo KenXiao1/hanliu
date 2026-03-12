@@ -419,18 +419,11 @@ img {
   border-color: rgba(194, 158, 82, 0.45);
 }
 
-/* ── Settings panel ───────────────────────────────────────── */
-
-.toolbar-settings-wrap {
-  position: relative;
-}
-
 .toolbar-actions {
   margin-left: auto;
 }
 
-.toolbar-theme-toggle,
-.toolbar-settings-trigger {
+.toolbar-theme-toggle {
   font-weight: 600;
 }
 
@@ -448,50 +441,9 @@ img {
   transform: rotate(-12deg) scale(1.08);
 }
 
-.toolbar-settings-trigger {
-  min-width: 132px;
-  justify-content: space-between;
-}
-
-.toolbar-chevron {
-  transition: transform 180ms ease;
-}
-
-.toolbar-chevron.is-open {
-  transform: rotate(180deg);
-}
-
-.settings-panel {
-  position: absolute;
-  right: 0;
-  top: calc(100% + 8px);
-  z-index: 100;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding: 16px;
-  border-radius: 18px;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow);
-  min-width: 260px;
-}
-
-.settings-section {
-  display: grid;
-  gap: 10px;
-}
-
-.settings-label {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.8rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.settings-row {
-  display: flex;
+.toolbar-control-group {
+  display: inline-flex;
+  align-items: center;
   gap: 8px;
   flex-wrap: wrap;
 }
@@ -772,21 +724,15 @@ html[data-preference-shift="on"] .issue-content {
   .toolbar-actions {
     width: 100%;
     margin-left: 0;
-    justify-content: space-between;
+    justify-content: flex-start;
   }
 
-  .toolbar-settings-wrap {
+  .toolbar-control-group {
     width: 100%;
   }
 
-  .toolbar-settings-trigger {
-    width: 100%;
-  }
-
-  .settings-panel {
-    left: 0;
-    right: auto;
-    min-width: min(100%, 280px);
+  .toolbar-theme-toggle {
+    flex: 0 0 auto;
   }
 }
 

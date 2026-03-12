@@ -113,7 +113,6 @@ describe("IssueHome preferences", () => {
       "/issues/issue-01/pdf?script=zh-Hans"
     );
 
-    await user.click(screen.getByRole("button", { name: "阅读设置" }));
     await user.click(screen.getByRole("button", { name: /繁/ }));
 
     expect(screen.getByRole("heading", { name: "開篇" })).toBeTruthy();

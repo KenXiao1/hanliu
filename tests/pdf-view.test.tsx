@@ -52,7 +52,6 @@ describe("PdfView", () => {
       buildIssuePdfAssetPath("issue-01", "zh-Hans")
     );
 
-    await user.click(screen.getByRole("button", { name: "阅读设置" }));
     await user.click(screen.getByRole("button", { name: /繁/ }));
 
     expect(screen.getByTitle("漢留 PDF 在线阅读").getAttribute("src")).toBe(
