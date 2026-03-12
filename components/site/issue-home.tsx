@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import type { IssueManifest, LocaleCode, PageData } from "@/lib/content/types";
+import { getIssueCoverImageProps } from "@/lib/reader-images";
 import { withSearchParams } from "@/lib/url";
 
 export function IssueHome({
@@ -9,16 +10,16 @@ export function IssueHome({
   coverPage,
   script,
   issueHomePath,
-  tocPath,
   discussionPath
 }: {
   issue: IssueManifest;
   coverPage: PageData;
   script: LocaleCode;
   issueHomePath: string;
-  tocPath: string;
   discussionPath: string;
 }) {
+  const coverImage = getIssueCoverImageProps({ viewport: coverPage.viewport });
+
   return (
     <div className="issue-home">
       <section className="issue-hero">
@@ -27,10 +28,7 @@ export function IssueHome({
             src={coverPage.renderedPageAsset}
             alt={`${issue.title} 封面`}
             className="cover-image"
-            width={Math.round(coverPage.viewport.width * 2)}
-            height={Math.round(coverPage.viewport.height * 2)}
-            priority
-            sizes="(max-width: 1024px) 100vw, 60vw"
+            {...coverImage}
           />
         </div>
         <div className="issue-hero-copy">
@@ -91,7 +89,6 @@ export function IssueHome({
           </article>
         ))}
       </section>
-
     </div>
   );
 }

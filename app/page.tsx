@@ -33,7 +33,7 @@ export default async function Home({ searchParams }: HomeProps) {
           alternateModePath={issue.articles[0] ? `/article/${issue.articles[0].slug}` : "/toc"}
           currentRouteKind="issue"
         >
-          <IssueHome issue={issue} coverPage={pages[0]} script={preferences.script} issueHomePath="" tocPath="/toc" discussionPath="/discussion" />
+          <IssueHome issue={issue} coverPage={pages[0]} script={preferences.script} issueHomePath="" discussionPath="/discussion" />
         </IssueShell>
       </>
     );

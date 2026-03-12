@@ -10,6 +10,19 @@
   --accent-strong: #d0ad5c;
   --border: rgba(91, 104, 96, 0.22);
   --shadow: 0 32px 80px rgba(43, 53, 50, 0.14);
+  --font-body:
+    "PingFang SC",
+    "Hiragino Sans GB",
+    "Microsoft YaHei",
+    "Noto Sans CJK SC",
+    "Source Han Sans SC",
+    sans-serif;
+  --font-display:
+    "Songti SC",
+    "STSong",
+    "Noto Serif CJK SC",
+    "Source Han Serif SC",
+    serif;
   --reader-font-scale: 1;
   --reader-page-zoom: 1;
 }

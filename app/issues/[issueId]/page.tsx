@@ -42,7 +42,6 @@ export default async function IssueFallbackPage({ params, searchParams }: IssueF
           coverPage={pages[0]}
           script={preferences.script}
           issueHomePath={issueRoot}
-          tocPath={`${issueRoot}/toc`}
           discussionPath={`${issueRoot}/discussion`}
         />
       </IssueShell>
