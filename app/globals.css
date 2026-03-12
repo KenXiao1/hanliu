@@ -659,6 +659,37 @@ html[data-preference-shift="on"] .issue-content {
   gap: 20px;
 }
 
+.pdf-reader {
+  display: grid;
+  gap: 20px;
+}
+
+.pdf-banner {
+  display: grid;
+  gap: 14px;
+}
+
+.pdf-banner p {
+  margin: 0;
+}
+
+.pdf-stage {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  min-height: 78vh;
+}
+
+.pdf-frame {
+  display: block;
+  width: 100%;
+  min-height: 78vh;
+  border: 0;
+  background: color-mix(in srgb, var(--bg) 86%, #000 14%);
+}
+
 .layout-stage {
   padding: 28px;
   overflow: auto;

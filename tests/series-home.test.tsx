@@ -47,7 +47,7 @@ describe("SeriesHome", () => {
 
     expect(screen.queryByText("浏览全集入口")).toBeNull();
     expect(screen.getByRole("link", { name: "阅读 PDF" }).getAttribute("href")).toBe(
-      "/issues/issue-01/read/page/1?mode=layout&script=zh-Hans"
+      "/issues/issue-01/pdf?script=zh-Hans"
     );
   });
 

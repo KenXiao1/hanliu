@@ -109,12 +109,16 @@ describe("IssueHome preferences", () => {
     );
 
     expect(screen.getByRole("heading", { name: "开篇" })).toBeTruthy();
-    expect(screen.getByRole("link", { name: "阅读 PDF" }).getAttribute("href")).toContain("script=zh-Hans");
+    expect(screen.getByRole("link", { name: "阅读 PDF" }).getAttribute("href")).toContain(
+      "/issues/issue-01/pdf?script=zh-Hans"
+    );
 
     await user.click(screen.getByRole("button", { name: "阅读设置" }));
     await user.click(screen.getByRole("button", { name: /繁/ }));
 
     expect(screen.getByRole("heading", { name: "開篇" })).toBeTruthy();
-    expect(screen.getByRole("link", { name: "阅读 PDF" }).getAttribute("href")).toContain("script=zh-Hant");
+    expect(screen.getByRole("link", { name: "阅读 PDF" }).getAttribute("href")).toContain(
+      "/issues/issue-01/pdf?script=zh-Hant"
+    );
   });
 });

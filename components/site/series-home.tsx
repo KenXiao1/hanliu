@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { Github } from "lucide-react";
 
+import { buildIssuePdfPagePath } from "@/lib/content/pdf";
 import type { IssueManifest } from "@/lib/content/types";
-import { withSearchParams } from "@/lib/url";
 
 export function SeriesHome({ issues }: { issues: IssueManifest[] }) {
   const featuredIssue = issues[0] ?? null;
@@ -19,10 +19,7 @@ export function SeriesHome({ issues }: { issues: IssueManifest[] }) {
             {hasSingleIssue ? (
               <>
                 <Link
-                  href={withSearchParams(`/issues/${featuredIssue.issueId}/read/page/1`, {
-                    mode: "layout",
-                    script: featuredIssue.defaultLocale
-                  })}
+                  href={buildIssuePdfPagePath(`/issues/${featuredIssue.issueId}`, featuredIssue.defaultLocale)}
                   className="hero-link"
                 >
                   阅读 PDF

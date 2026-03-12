@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { useReaderPreferences } from "@/components/site/preference-sync";
+import { buildIssuePdfPagePath } from "@/lib/content/pdf";
 import type { IssueManifest, LocaleCode, PageData } from "@/lib/content/types";
 import { getIssueCoverImageProps } from "@/lib/reader-images";
 import { withSearchParams } from "@/lib/url";
@@ -46,11 +47,7 @@ export function IssueHome({
           <p>从原版排印进入，再按目录与文章慢慢展开。</p>
           <div className="series-actions">
             <Link
-              href={withSearchParams(`${issueHomePath.replace(/\/$/, "")}/read/page/1`, {
-                ...preferences,
-                script: preferences.script,
-                mode: "layout"
-              })}
+              href={buildIssuePdfPagePath(issueHomePath, preferences.script)}
               className="hero-link"
             >
               阅读 PDF

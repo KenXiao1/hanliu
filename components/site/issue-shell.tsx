@@ -12,7 +12,7 @@ type IssueShellProps = {
   tocPath: string;
   discussionPath: string;
   alternateModePath?: string;
-  currentRouteKind: "article" | "layout" | "toc" | "issue" | "discussion";
+  currentRouteKind: "article" | "layout" | "toc" | "issue" | "discussion" | "pdf";
   children: ReactNode;
 };
 

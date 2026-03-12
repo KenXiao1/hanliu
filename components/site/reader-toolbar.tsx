@@ -15,7 +15,7 @@ type ReaderToolbarProps = {
   tocPath: string;
   discussionPath: string;
   alternateModePath?: string;
-  currentRouteKind: "article" | "layout" | "toc" | "issue" | "discussion";
+  currentRouteKind: "article" | "layout" | "toc" | "issue" | "discussion" | "pdf";
   preferences: ReaderPreferences;
 };
 
@@ -129,38 +129,40 @@ export function ReaderToolbar({
                 </div>
               </div>
 
-              <div className="settings-section">
-                <p className="settings-label">{currentRouteKind === "layout" ? "版式" : "字号"}</p>
-                <div className="settings-row">
-                  {currentRouteKind === "layout" ? (
-                    <>
-                      <button type="button" className="toolbar-chip" onClick={() => replaceCurrent({ pageZoom: clampPageZoom(activePreferences.pageZoom - 0.2) })}>
-                        <Type size={15} />
-                        远
-                      </button>
-                      <button type="button" className="toolbar-chip is-active">
-                        {Math.round(clampPageZoom(activePreferences.pageZoom) * 100)}%
-                      </button>
-                      <button type="button" className="toolbar-chip" onClick={() => replaceCurrent({ pageZoom: clampPageZoom(activePreferences.pageZoom + 0.2) })}>
-                        近
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button type="button" className="toolbar-chip" onClick={() => replaceCurrent({ fontScale: clampFontScale(activePreferences.fontScale - 0.1) })}>
-                        <Type size={15} />
-                        小
-                      </button>
-                      <button type="button" className="toolbar-chip is-active">
-                        {Math.round(clampFontScale(activePreferences.fontScale) * 100)}%
-                      </button>
-                      <button type="button" className="toolbar-chip" onClick={() => replaceCurrent({ fontScale: clampFontScale(activePreferences.fontScale + 0.1) })}>
-                        大
-                      </button>
-                    </>
-                  )}
+              {currentRouteKind !== "pdf" ? (
+                <div className="settings-section">
+                  <p className="settings-label">{currentRouteKind === "layout" ? "版式" : "字号"}</p>
+                  <div className="settings-row">
+                    {currentRouteKind === "layout" ? (
+                      <>
+                        <button type="button" className="toolbar-chip" onClick={() => replaceCurrent({ pageZoom: clampPageZoom(activePreferences.pageZoom - 0.2) })}>
+                          <Type size={15} />
+                          远
+                        </button>
+                        <button type="button" className="toolbar-chip is-active">
+                          {Math.round(clampPageZoom(activePreferences.pageZoom) * 100)}%
+                        </button>
+                        <button type="button" className="toolbar-chip" onClick={() => replaceCurrent({ pageZoom: clampPageZoom(activePreferences.pageZoom + 0.2) })}>
+                          近
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button type="button" className="toolbar-chip" onClick={() => replaceCurrent({ fontScale: clampFontScale(activePreferences.fontScale - 0.1) })}>
+                          <Type size={15} />
+                          小
+                        </button>
+                        <button type="button" className="toolbar-chip is-active">
+                          {Math.round(clampFontScale(activePreferences.fontScale) * 100)}%
+                        </button>
+                        <button type="button" className="toolbar-chip" onClick={() => replaceCurrent({ fontScale: clampFontScale(activePreferences.fontScale + 0.1) })}>
+                          大
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
-              </div>
+              ) : null}
             </div>
           )}
         </div>
