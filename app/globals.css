@@ -494,6 +494,8 @@ img {
 .article-page-section {
   padding: 22px 0;
   border-top: 1px solid var(--border);
+  content-visibility: auto;
+  contain-intrinsic-size: auto 600px;
 }
 
 .article-page-section:first-child {
@@ -601,6 +603,13 @@ img {
 }
 
 @media (max-width: 768px) {
+  .series-hero,
+  .issue-hero,
+  .article-sheet,
+  .layout-stage {
+    backdrop-filter: none;
+  }
+
   .series-home,
   .issue-shell {
     width: min(100vw - 20px, 1380px);

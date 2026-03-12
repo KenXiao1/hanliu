@@ -1,4 +1,4 @@
-import { GiscusComments } from "@/components/site/giscus-comments";
+import { LazyGiscusComments } from "@/components/site/lazy-giscus";
 
 export function DiscussionView({ threadId }: { threadId: string }) {
   return (
@@ -8,7 +8,7 @@ export function DiscussionView({ threadId }: { threadId: string }) {
         <h1>第一集评论区</h1>
         <p>在此讨论这一集的内容。</p>
       </header>
-      <GiscusComments threadId={threadId} />
+      <LazyGiscusComments threadId={threadId} />
     </div>
   );
 }

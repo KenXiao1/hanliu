@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Hanliu Online Reader — a Next.js-based web reader for the Chinese periodical "涵流" (Celestial Reserve). It converts source PDFs into a navigable web experience with dual reading modes, Simplified/Traditional Chinese switching, light/dark theme, and Giscus-powered comments.
+Hanliu Online Reader — a Next.js-based web reader for the Chinese periodical "汉留" (Celestial Reserve). It converts source PDFs into a navigable web experience with dual reading modes, Simplified/Traditional Chinese switching, light/dark theme, and Giscus-powered comments.
 
 ## Commands
 

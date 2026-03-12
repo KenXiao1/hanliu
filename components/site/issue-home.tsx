@@ -30,6 +30,7 @@ export function IssueHome({
             width={Math.round(coverPage.viewport.width * 2)}
             height={Math.round(coverPage.viewport.height * 2)}
             priority
+            sizes="(max-width: 1024px) 100vw, 60vw"
           />
         </div>
         <div className="issue-hero-copy">

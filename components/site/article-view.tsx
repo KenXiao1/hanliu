@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { GiscusComments } from "@/components/site/giscus-comments";
+import { LazyGiscusComments } from "@/components/site/lazy-giscus";
 import type { ArticleView as ArticleViewModel } from "@/lib/content/queries";
 import type { ReaderPreferences } from "@/lib/preferences";
 import { withSearchParams } from "@/lib/url";
@@ -75,7 +75,7 @@ export function ArticleView({
                     <div className="article-gallery">
                       {page.images.map((image) => (
                         <figure key={image.src}>
-                          <Image src={image.src} alt={image.alt} width={image.width} height={image.height} />
+                          <Image src={image.src} alt={image.alt} width={image.width} height={image.height} sizes="(max-width: 1024px) 100vw, 700px" />
                         </figure>
                       ))}
                     </div>
@@ -92,7 +92,7 @@ export function ArticleView({
           <p className="eyebrow">文章讨论</p>
           <h2>围绕本篇的讨论</h2>
         </div>
-        <GiscusComments threadId={view.article.commentThreadId} />
+        <LazyGiscusComments threadId={view.article.commentThreadId} />
       </section>
     </div>
   );

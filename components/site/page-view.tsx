@@ -41,6 +41,7 @@ export function PageView({ pageView, issueRoot, preferences }: PageViewProps) {
             width={Math.round(page.viewport.width * 2)}
             height={Math.round(page.viewport.height * 2)}
             priority={page.pageNumber <= 2}
+            sizes="(max-width: 768px) 92vw, min(920px, calc(100vw - 140px))"
           />
         </div>
       </div>
