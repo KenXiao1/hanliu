@@ -3,6 +3,16 @@ import { describe, expect, it } from "vitest";
 import { buildReaderHref, clampFontScale, clampPageZoom } from "@/lib/reader-state";
 
 describe("reader-state", () => {
+  it("omits the query delimiter when there are no params", () => {
+    expect(
+      buildReaderHref({
+        pathname: "/issues/issue-01",
+        params: new URLSearchParams(),
+        patch: {}
+      })
+    ).toBe("/issues/issue-01");
+  });
+
   it("preserves the current route when switching script", () => {
     expect(
       buildReaderHref({

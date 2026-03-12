@@ -15,7 +15,8 @@ export function buildReaderHref({ pathname, params, patch }: ReaderHrefInput): s
     nextParams.set(key, value);
   });
 
-  return `${pathname}?${nextParams.toString()}`;
+  const queryString = nextParams.toString();
+  return queryString ? `${pathname}?${queryString}` : pathname;
 }
 
 export function clampFontScale(value: number): number {
