@@ -2,7 +2,10 @@
 
 import Giscus from "@giscus/react";
 
+import { useReaderPreferences } from "@/components/site/preference-sync";
+
 export function GiscusComments({ threadId }: { threadId: string }) {
+  const { preferences } = useReaderPreferences();
   const repo = process.env.NEXT_PUBLIC_GISCUS_REPO;
   const repoId = process.env.NEXT_PUBLIC_GISCUS_REPO_ID;
   const category = process.env.NEXT_PUBLIC_GISCUS_CATEGORY;
@@ -28,7 +31,7 @@ export function GiscusComments({ threadId }: { threadId: string }) {
       reactionsEnabled="1"
       emitMetadata="0"
       inputPosition="top"
-      theme="preferred_color_scheme"
+      theme={preferences.theme}
       lang="zh-CN"
       loading="lazy"
     />
