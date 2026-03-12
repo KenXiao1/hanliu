@@ -1,23 +1,31 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 
+import { useReaderPreferences } from "@/components/site/preference-sync";
 import type { IssueManifest, LocaleCode, PageData } from "@/lib/content/types";
 import { getIssueCoverImageProps } from "@/lib/reader-images";
 import { withSearchParams } from "@/lib/url";
 
 export function IssueHome({
   issue,
-  coverPage,
-  script,
+  coverPages,
   issueHomePath,
   discussionPath
 }: {
   issue: IssueManifest;
-  coverPage: PageData;
-  script: LocaleCode;
+  coverPages: Partial<Record<LocaleCode, PageData>>;
   issueHomePath: string;
   discussionPath: string;
 }) {
+  const { preferences } = useReaderPreferences();
+  const coverPage = coverPages[preferences.script] ?? coverPages["zh-Hans"] ?? coverPages["zh-Hant"];
+
+  if (!coverPage) {
+    return null;
+  }
+
   const coverImage = getIssueCoverImageProps({ viewport: coverPage.viewport });
 
   return (
@@ -35,20 +43,22 @@ export function IssueHome({
           <p className="eyebrow">第一集在线阅读</p>
           <h1>{issue.title}</h1>
           <p className="issue-subtitle">{issue.subtitle}</p>
-          <p>翻阅原版排印，或以文章形式细读。</p>
+          <p>从原版排印进入，再按目录与文章慢慢展开。</p>
           <div className="series-actions">
             <Link
               href={withSearchParams(`${issueHomePath.replace(/\/$/, "")}/read/page/1`, {
-                script,
+                ...preferences,
+                script: preferences.script,
                 mode: "layout"
               })}
               className="hero-link"
             >
-              从封面开始
+              阅读 PDF
             </Link>
             <Link
               href={withSearchParams(`${issueHomePath.replace(/\/$/, "")}/toc`, {
-                script,
+                ...preferences,
+                script: preferences.script,
                 mode: "article"
               })}
               className="hero-link hero-link-alt"
@@ -79,11 +89,16 @@ export function IssueHome({
         {issue.articles.map((article, index) => (
           <article key={article.articleId} className="article-ribbon-card">
             <p>{String(index + 1).padStart(2, "0")}</p>
-            <h2>{script === "zh-Hant" ? article.titleHant : article.titleHans}</h2>
+            <h2>{preferences.script === "zh-Hant" ? article.titleHant : article.titleHans}</h2>
             <span>
               {article.startPage}-{article.endPage}
             </span>
-            <Link href={withSearchParams(`${issueHomePath.replace(/\/$/, "")}/article/${article.slug}`, { script, mode: "article" })}>
+            <Link
+              href={withSearchParams(`${issueHomePath.replace(/\/$/, "")}/article/${article.slug}`, {
+                ...preferences,
+                mode: "article"
+              })}
+            >
               进入文章
             </Link>
           </article>

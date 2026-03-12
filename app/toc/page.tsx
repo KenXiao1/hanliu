@@ -22,19 +22,17 @@ export default async function TocPage({ searchParams }: TocPageProps) {
   }
 
   return (
-    <>
-      <PreferenceSync preferences={preferences} />
+    <PreferenceSync preferences={preferences}>
       <IssueShell
         issue={issue}
         preferences={preferences}
         issueHomePath="/"
         tocPath="/toc"
         discussionPath="/discussion"
-        alternateModePath={issue.articles[0] ? `/article/${issue.articles[0].slug}` : "/"}
         currentRouteKind="toc"
       >
         <TocView issue={issue} issueRoot="" script={preferences.script} />
       </IssueShell>
-    </>
+    </PreferenceSync>
   );
 }

@@ -1,7 +1,10 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 
 import { LazyGiscusComments } from "@/components/site/lazy-giscus";
+import { useReaderPreferences } from "@/components/site/preference-sync";
 import type { ArticleView as ArticleViewModel } from "@/lib/content/queries";
 import type { ReaderPreferences } from "@/lib/preferences";
 import { withSearchParams } from "@/lib/url";
@@ -15,12 +18,13 @@ export function ArticleView({
   issueRoot: string;
   preferences: ReaderPreferences;
 }) {
-  const localePages = view.locales[preferences.script].pages;
-  const title = preferences.script === "zh-Hant" ? view.article.titleHant : view.article.titleHans;
+  const { preferences: activePreferences } = useReaderPreferences(preferences);
+  const localePages = view.locales[activePreferences.script].pages;
+  const title = activePreferences.script === "zh-Hant" ? view.article.titleHant : view.article.titleHans;
 
   return (
     <div className="article-layout">
-      <article className="article-sheet" style={{ ["--article-font-scale" as string]: String(preferences.fontScale) }}>
+      <article className="article-sheet" style={{ ["--article-font-scale" as string]: String(activePreferences.fontScale) }}>
         <header className="page-banner article-banner">
           <p className="eyebrow">文章模式</p>
           <h1>{title}</h1>
@@ -33,7 +37,7 @@ export function ArticleView({
             <ol>
               {view.toc.map((entry) => (
                 <li key={entry.id}>
-                  <a href={`#${entry.id}`}>{preferences.script === "zh-Hant" ? entry.titleHant : entry.titleHans}</a>
+                  <a href={`#${entry.id}`}>{activePreferences.script === "zh-Hant" ? entry.titleHant : entry.titleHans}</a>
                 </li>
               ))}
             </ol>
@@ -49,10 +53,10 @@ export function ArticleView({
                     <span>第 {page.pageNumber} 页</span>
                     <Link
                       href={withSearchParams(`${issueRoot}/read/page/${page.pageNumber}`, {
-                        script: preferences.script,
-                        theme: preferences.theme,
+                        script: activePreferences.script,
+                        theme: activePreferences.theme,
                         mode: "layout",
-                        pageZoom: preferences.pageZoom
+                        pageZoom: activePreferences.pageZoom
                       })}
                     >
                       查看原版式
@@ -61,7 +65,7 @@ export function ArticleView({
 
                   {sectionLinks.map((entry) => (
                     <div key={entry.id} id={entry.id} className="section-anchor">
-                      {preferences.script === "zh-Hant" ? entry.titleHant : entry.titleHans}
+                      {activePreferences.script === "zh-Hant" ? entry.titleHant : entry.titleHans}
                     </div>
                   ))}
 

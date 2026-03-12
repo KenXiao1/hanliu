@@ -1,6 +1,9 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 
+import { useReaderPreferences } from "@/components/site/preference-sync";
 import type { ReaderPreferences } from "@/lib/preferences";
 import { getLayoutPageImageProps } from "@/lib/reader-images";
 import { withSearchParams } from "@/lib/url";
@@ -12,7 +15,8 @@ type PageViewProps = {
 };
 
 export function PageView({ pageView, issueRoot, preferences }: PageViewProps) {
-  const page = pageView.locales[preferences.script];
+  const { preferences: activePreferences } = useReaderPreferences(preferences);
+  const page = pageView.locales[activePreferences.script];
 
   if (!page) {
     return (
@@ -23,7 +27,7 @@ export function PageView({ pageView, issueRoot, preferences }: PageViewProps) {
     );
   }
 
-  const spread = pageView.spread[preferences.script];
+  const spread = pageView.spread[activePreferences.script];
   const imageProps = getLayoutPageImageProps({
     pageNumber: page.pageNumber,
     viewport: page.viewport
@@ -54,7 +58,7 @@ export function PageView({ pageView, issueRoot, preferences }: PageViewProps) {
 
       <nav className="page-nav">
         {spread.previous ? (
-          <Link href={withSearchParams(`${issueRoot}/read/page/${spread.previous.pageNumber}`, { ...preferences, mode: "layout" })}>
+          <Link href={withSearchParams(`${issueRoot}/read/page/${spread.previous.pageNumber}`, { ...activePreferences, mode: "layout" })}>
             上一页
           </Link>
         ) : (
@@ -62,13 +66,13 @@ export function PageView({ pageView, issueRoot, preferences }: PageViewProps) {
         )}
 
         {pageView.article ? (
-          <Link href={withSearchParams(`${issueRoot}/article/${pageView.article.slug}`, { ...preferences, mode: "article" })}>
+          <Link href={withSearchParams(`${issueRoot}/article/${pageView.article.slug}`, { ...activePreferences, mode: "article" })}>
             转到所属文章
           </Link>
         ) : null}
 
         {spread.next ? (
-          <Link href={withSearchParams(`${issueRoot}/read/page/${spread.next.pageNumber}`, { ...preferences, mode: "layout" })}>
+          <Link href={withSearchParams(`${issueRoot}/read/page/${spread.next.pageNumber}`, { ...activePreferences, mode: "layout" })}>
             下一页
           </Link>
         ) : (

@@ -26,19 +26,17 @@ export default async function IssueDiscussionFallbackPage({
   const issueRoot = `/issues/${issueId}`;
 
   return (
-    <>
-      <PreferenceSync preferences={preferences} />
+    <PreferenceSync preferences={preferences}>
       <IssueShell
         issue={issue}
         preferences={preferences}
         issueHomePath={issueRoot}
         tocPath={`${issueRoot}/toc`}
         discussionPath={`${issueRoot}/discussion`}
-        alternateModePath={issue.articles[0] ? `${issueRoot}/article/${issue.articles[0].slug}` : issueRoot}
-        currentRouteKind="issue"
+        currentRouteKind="discussion"
       >
         <DiscussionView threadId={issue.issueId} />
       </IssueShell>
-    </>
+    </PreferenceSync>
   );
 }

@@ -11,8 +11,8 @@ type IssueShellProps = {
   issueHomePath: string;
   tocPath: string;
   discussionPath: string;
-  alternateModePath: string;
-  currentRouteKind: "article" | "layout" | "toc" | "issue";
+  alternateModePath?: string;
+  currentRouteKind: "article" | "layout" | "toc" | "issue" | "discussion";
   children: ReactNode;
 };
 
@@ -22,7 +22,6 @@ export function IssueShell({
   issueHomePath,
   tocPath,
   discussionPath,
-  alternateModePath,
   currentRouteKind,
   children
 }: IssueShellProps) {
@@ -43,7 +42,6 @@ export function IssueShell({
         issueHomePath={issueHomePath}
         tocPath={tocPath}
         discussionPath={discussionPath}
-        alternateModePath={alternateModePath}
         preferences={preferences}
         currentRouteKind={currentRouteKind}
       />

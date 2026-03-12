@@ -23,19 +23,17 @@ export default async function IssueTocFallbackPage({ params, searchParams }: Iss
   const issueRoot = `/issues/${issueId}`;
 
   return (
-    <>
-      <PreferenceSync preferences={preferences} />
+    <PreferenceSync preferences={preferences}>
       <IssueShell
         issue={issue}
         preferences={preferences}
         issueHomePath={issueRoot}
         tocPath={`${issueRoot}/toc`}
         discussionPath={`${issueRoot}/discussion`}
-        alternateModePath={issue.articles[0] ? `${issueRoot}/article/${issue.articles[0].slug}` : issueRoot}
         currentRouteKind="toc"
       >
         <TocView issue={issue} issueRoot={issueRoot} script={preferences.script} />
       </IssueShell>
-    </>
+    </PreferenceSync>
   );
 }

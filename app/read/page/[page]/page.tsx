@@ -25,19 +25,17 @@ export default async function PageReader({ params, searchParams }: PageReaderPro
   const [issue, view] = await Promise.all([getIssueManifest(issueId), getPageView(issueId, pageNumber)]);
 
   return (
-    <>
-      <PreferenceSync preferences={preferences} />
+    <PreferenceSync preferences={preferences}>
       <IssueShell
         issue={issue}
         preferences={preferences}
         issueHomePath="/"
         tocPath="/toc"
         discussionPath="/discussion"
-        alternateModePath={view.article ? `/article/${view.article.slug}` : "/toc"}
         currentRouteKind="layout"
       >
         <PageView pageView={view} issueRoot="" preferences={preferences} />
       </IssueShell>
-    </>
+    </PreferenceSync>
   );
 }

@@ -25,6 +25,9 @@
     serif;
   --reader-font-scale: 1;
   --reader-page-zoom: 1;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: 180ms var(--ease-out-expo);
+  --transition-medium: 260ms var(--ease-out-expo);
 }
 
 :root[data-theme="dark"] {
@@ -50,6 +53,7 @@ html {
   background:
     linear-gradient(180deg, rgba(208, 173, 92, 0.08), transparent 18%),
     var(--bg);
+  transition: background var(--transition-medium), color var(--transition-fast);
 }
 
 body {
@@ -57,6 +61,7 @@ body {
   min-height: 100vh;
   color: var(--text);
   font-family: var(--font-body), sans-serif;
+  transition: background-color var(--transition-medium), color var(--transition-fast);
 }
 
 a {
@@ -88,6 +93,7 @@ img {
   background: var(--bg-elevated);
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
+  transition: background var(--transition-medium), border-color var(--transition-fast), box-shadow var(--transition-fast), color var(--transition-fast);
 }
 
 /* ── Surface level 2 — structural UI ─────────────────────── */
@@ -100,6 +106,7 @@ img {
 .page-banner {
   background: var(--panel);
   border: 1px solid var(--border);
+  transition: background var(--transition-medium), border-color var(--transition-fast), box-shadow var(--transition-fast), color var(--transition-fast);
 }
 
 /* ── Surface level 3 — cards ─────────────────────────────── */
@@ -110,6 +117,7 @@ img {
   background: var(--panel);
   border: none;
   border-top: 2px solid var(--accent);
+  transition: background var(--transition-medium), border-color var(--transition-fast), box-shadow var(--transition-fast), color var(--transition-fast);
 }
 
 /* ── Hero sections ────────────────────────────────────────── */
@@ -187,6 +195,26 @@ img {
   justify-content: center;
 }
 
+.series-social {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.series-social-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--panel) 78%, transparent);
+  color: var(--text);
+  transition: transform var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), color var(--transition-fast);
+}
+
 /* ── Buttons & links ──────────────────────────────────────── */
 
 .hero-link,
@@ -240,7 +268,8 @@ img {
 .hero-link-alt:hover,
 .toolbar-chip:hover,
 .toolbar-link:hover,
-.page-nav a:hover {
+.page-nav a:hover,
+.series-social-link:hover {
   transform: translateY(-1px);
   border-color: rgba(210, 178, 92, 0.6);
   box-shadow: 0 10px 24px rgba(43, 53, 50, 0.08);
@@ -405,6 +434,20 @@ img {
   font-weight: 600;
 }
 
+.toolbar-theme-toggle {
+  justify-content: center;
+  min-width: 44px;
+  padding-inline: 12px;
+}
+
+.toolbar-theme-toggle svg {
+  transition: transform var(--transition-fast), opacity var(--transition-fast);
+}
+
+.toolbar-theme-toggle:hover svg {
+  transform: rotate(-12deg) scale(1.08);
+}
+
 .toolbar-settings-trigger {
   min-width: 132px;
   justify-content: space-between;
@@ -458,6 +501,10 @@ img {
 .issue-content {
   display: grid;
   gap: 24px;
+}
+
+html[data-preference-shift="on"] .issue-content {
+  animation: issue-content-shift 180ms var(--ease-out-expo);
 }
 
 .page-banner,
@@ -719,5 +766,17 @@ img {
     scroll-behavior: auto !important;
     transition-duration: 0ms !important;
     animation-duration: 0ms !important;
+  }
+}
+
+@keyframes issue-content-shift {
+  from {
+    opacity: 0.74;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

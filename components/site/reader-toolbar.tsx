@@ -3,18 +3,19 @@
 import { startTransition, useEffect, useRef, useState } from "react";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ChevronDown, Languages, MoonStar, SlidersHorizontal, SunMedium, Type } from "lucide-react";
 
-import { buildReaderHref, clampFontScale, clampPageZoom } from "@/lib/reader-state";
+import { clampFontScale, clampPageZoom } from "@/lib/reader-state";
 import type { ReaderPreferences } from "@/lib/preferences";
+import { withSearchParams } from "@/lib/url";
+import { useReaderPreferences } from "@/components/site/preference-sync";
 
 type ReaderToolbarProps = {
   issueHomePath: string;
   tocPath: string;
   discussionPath: string;
-  alternateModePath: string;
-  currentRouteKind: "article" | "layout" | "toc" | "issue";
+  alternateModePath?: string;
+  currentRouteKind: "article" | "layout" | "toc" | "issue" | "discussion";
   preferences: ReaderPreferences;
 };
 
@@ -22,16 +23,13 @@ export function ReaderToolbar({
   issueHomePath,
   tocPath,
   discussionPath,
-  alternateModePath,
   currentRouteKind,
   preferences
 }: ReaderToolbarProps) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const { preferences: activePreferences, updatePreferences } = useReaderPreferences(preferences);
 
   useEffect(() => {
     if (!settingsOpen) return;
@@ -47,30 +45,18 @@ export function ReaderToolbar({
     return () => document.removeEventListener("mousedown", handleMouseDown);
   }, [settingsOpen]);
 
-  const currentParams = new URLSearchParams(searchParams.toString());
   const decorateHref = (targetPath: string) =>
-    buildReaderHref({
-      pathname: targetPath,
-      params: currentParams,
-      patch: {}
-    });
+    withSearchParams(targetPath, activePreferences);
 
-  const replaceCurrent = (patch: Record<string, string>) => {
+  const replaceCurrent = (patch: Partial<ReaderPreferences>) => {
     setSettingsOpen(false);
     startTransition(() => {
-      router.replace(
-        buildReaderHref({
-          pathname,
-          params: currentParams,
-          patch
-        }),
-        { scroll: false }
-      );
+      updatePreferences(patch);
     });
   };
 
   const toggleTheme = () => {
-    replaceCurrent({ theme: preferences.theme === "light" ? "dark" : "light" });
+    replaceCurrent({ theme: activePreferences.theme === "light" ? "dark" : "light" });
   };
 
   return (
@@ -88,11 +74,11 @@ export function ReaderToolbar({
         >
           <span>目录</span>
         </Link>
-        <Link href={decorateHref(discussionPath)} className="toolbar-link">
+        <Link
+          href={decorateHref(discussionPath)}
+          className={currentRouteKind === "discussion" ? "toolbar-link is-current" : "toolbar-link"}
+        >
           <span>讨论</span>
-        </Link>
-        <Link href={decorateHref(alternateModePath)} className="toolbar-link toolbar-accent">
-          <span>{currentRouteKind === "layout" ? "文章模式" : "版式模式"}</span>
         </Link>
       </div>
 
@@ -101,10 +87,9 @@ export function ReaderToolbar({
           type="button"
           className="toolbar-link toolbar-theme-toggle"
           onClick={toggleTheme}
-          aria-label={preferences.theme === "light" ? "切换到夜读" : "切换到日读"}
+          aria-label={activePreferences.theme === "light" ? "切换到夜读" : "切换到日读"}
         >
-          {preferences.theme === "light" ? <MoonStar size={16} /> : <SunMedium size={16} />}
-          <span>{preferences.theme === "light" ? "夜读" : "日读"}</span>
+          {activePreferences.theme === "light" ? <MoonStar size={16} /> : <SunMedium size={16} />}
         </button>
 
         <div className="toolbar-settings-wrap">
@@ -128,7 +113,7 @@ export function ReaderToolbar({
                 <div className="settings-row">
                   <button
                     type="button"
-                    className={preferences.script === "zh-Hans" ? "toolbar-chip is-active" : "toolbar-chip"}
+                    className={activePreferences.script === "zh-Hans" ? "toolbar-chip is-active" : "toolbar-chip"}
                     onClick={() => replaceCurrent({ script: "zh-Hans" })}
                   >
                     <Languages size={15} />
@@ -136,7 +121,7 @@ export function ReaderToolbar({
                   </button>
                   <button
                     type="button"
-                    className={preferences.script === "zh-Hant" ? "toolbar-chip is-active" : "toolbar-chip"}
+                    className={activePreferences.script === "zh-Hant" ? "toolbar-chip is-active" : "toolbar-chip"}
                     onClick={() => replaceCurrent({ script: "zh-Hant" })}
                   >
                     繁
@@ -149,27 +134,27 @@ export function ReaderToolbar({
                 <div className="settings-row">
                   {currentRouteKind === "layout" ? (
                     <>
-                      <button type="button" className="toolbar-chip" onClick={() => replaceCurrent({ pageZoom: String(clampPageZoom(preferences.pageZoom - 0.2)) })}>
+                      <button type="button" className="toolbar-chip" onClick={() => replaceCurrent({ pageZoom: clampPageZoom(activePreferences.pageZoom - 0.2) })}>
                         <Type size={15} />
                         远
                       </button>
                       <button type="button" className="toolbar-chip is-active">
-                        {Math.round(clampPageZoom(preferences.pageZoom) * 100)}%
+                        {Math.round(clampPageZoom(activePreferences.pageZoom) * 100)}%
                       </button>
-                      <button type="button" className="toolbar-chip" onClick={() => replaceCurrent({ pageZoom: String(clampPageZoom(preferences.pageZoom + 0.2)) })}>
+                      <button type="button" className="toolbar-chip" onClick={() => replaceCurrent({ pageZoom: clampPageZoom(activePreferences.pageZoom + 0.2) })}>
                         近
                       </button>
                     </>
                   ) : (
                     <>
-                      <button type="button" className="toolbar-chip" onClick={() => replaceCurrent({ fontScale: String(clampFontScale(preferences.fontScale - 0.1)) })}>
+                      <button type="button" className="toolbar-chip" onClick={() => replaceCurrent({ fontScale: clampFontScale(activePreferences.fontScale - 0.1) })}>
                         <Type size={15} />
                         小
                       </button>
                       <button type="button" className="toolbar-chip is-active">
-                        {Math.round(clampFontScale(preferences.fontScale) * 100)}%
+                        {Math.round(clampFontScale(activePreferences.fontScale) * 100)}%
                       </button>
-                      <button type="button" className="toolbar-chip" onClick={() => replaceCurrent({ fontScale: String(clampFontScale(preferences.fontScale + 0.1)) })}>
+                      <button type="button" className="toolbar-chip" onClick={() => replaceCurrent({ fontScale: clampFontScale(activePreferences.fontScale + 0.1) })}>
                         大
                       </button>
                     </>

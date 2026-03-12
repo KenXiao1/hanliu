@@ -47,7 +47,7 @@ describe("ReaderToolbar", () => {
     mockedSearchParams = "mode=article&script=zh-Hans&theme=light";
   });
 
-  it("shows a direct theme toggle in the toolbar", async () => {
+  it("toggles theme locally without triggering a route replace", async () => {
     const user = userEvent.setup();
 
     render(
@@ -61,12 +61,13 @@ describe("ReaderToolbar", () => {
       />
     );
 
-    await user.click(screen.getByRole("button", { name: "切换到夜读" }));
+    const toggle = screen.getByRole("button", { name: "切换到夜读" });
+    expect(toggle.textContent ?? "").not.toContain("夜读");
 
-    expect(replaceMock).toHaveBeenCalledWith(
-      "/issues/issue-01?mode=article&script=zh-Hans&theme=dark",
-      { scroll: false }
-    );
+    await user.click(toggle);
+
+    expect(replaceMock).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: "切换到日读" })).toBeTruthy();
   });
 
   it("uses a labeled settings trigger for secondary reading preferences", async () => {
@@ -87,5 +88,43 @@ describe("ReaderToolbar", () => {
 
     expect(screen.getByText("文字")).toBeTruthy();
     expect(screen.getByText("版式")).toBeTruthy();
+  });
+
+  it("switches script locally without triggering a route replace", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <ReaderToolbar
+        issueHomePath="/issues/issue-01"
+        tocPath="/issues/issue-01/toc"
+        discussionPath="/issues/issue-01/discussion"
+        alternateModePath="/issues/issue-01/read/page/1"
+        currentRouteKind="layout"
+        preferences={basePreferences}
+      />
+    );
+
+    await user.click(screen.getByRole("button", { name: "阅读设置" }));
+    await user.click(screen.getByRole("button", { name: /繁/ }));
+
+    expect(replaceMock).not.toHaveBeenCalled();
+    expect(screen.getByRole("link", { name: "封面" }).getAttribute("href")).toContain("script=zh-Hant");
+    expect(screen.getByRole("link", { name: "目录" }).getAttribute("href")).toContain("script=zh-Hant");
+  });
+
+  it("does not expose a global layout mode shortcut in the toolbar", () => {
+    render(
+      <ReaderToolbar
+        issueHomePath="/issues/issue-01"
+        tocPath="/issues/issue-01/toc"
+        discussionPath="/issues/issue-01/discussion"
+        alternateModePath="/issues/issue-01/read/page/1"
+        currentRouteKind="article"
+        preferences={basePreferences}
+      />
+    );
+
+    expect(screen.queryByText("版式模式")).toBeNull();
+    expect(screen.queryByText("文章模式")).toBeNull();
   });
 });

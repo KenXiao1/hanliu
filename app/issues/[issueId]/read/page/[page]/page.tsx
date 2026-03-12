@@ -32,19 +32,17 @@ export default async function IssuePageFallbackReader({
   const issueRoot = `/issues/${issueId}`;
 
   return (
-    <>
-      <PreferenceSync preferences={preferences} />
+    <PreferenceSync preferences={preferences}>
       <IssueShell
         issue={issue}
         preferences={preferences}
         issueHomePath={issueRoot}
         tocPath={`${issueRoot}/toc`}
         discussionPath={`${issueRoot}/discussion`}
-        alternateModePath={view.article ? `${issueRoot}/article/${view.article.slug}` : `${issueRoot}/toc`}
         currentRouteKind="layout"
       >
         <PageView pageView={view} issueRoot={issueRoot} preferences={preferences} />
       </IssueShell>
-    </>
+    </PreferenceSync>
   );
 }

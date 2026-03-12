@@ -16,26 +16,33 @@ export default async function Home({ searchParams }: HomeProps) {
   const siteContext = await getHostSiteContext("/");
 
   if (siteContext.siteKind === "issue" && siteContext.issueId) {
-    const [issue, pages] = await Promise.all([
+    const [issue, pagesHans, pagesHant] = await Promise.all([
       getIssueManifest(siteContext.issueId),
-      getIssuePages(siteContext.issueId, preferences.script)
+      getIssuePages(siteContext.issueId, "zh-Hans"),
+      getIssuePages(siteContext.issueId, "zh-Hant")
     ]);
 
     return (
-      <>
-        <PreferenceSync preferences={preferences} />
+      <PreferenceSync preferences={preferences}>
         <IssueShell
           issue={issue}
           preferences={preferences}
           issueHomePath="/"
           tocPath="/toc"
           discussionPath="/discussion"
-          alternateModePath={issue.articles[0] ? `/article/${issue.articles[0].slug}` : "/toc"}
           currentRouteKind="issue"
         >
-          <IssueHome issue={issue} coverPage={pages[0]} script={preferences.script} issueHomePath="" discussionPath="/discussion" />
+          <IssueHome
+            issue={issue}
+            coverPages={{
+              "zh-Hans": pagesHans[0],
+              "zh-Hant": pagesHant[0]
+            }}
+            issueHomePath=""
+            discussionPath="/discussion"
+          />
         </IssueShell>
-      </>
+      </PreferenceSync>
     );
   }
 

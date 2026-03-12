@@ -47,19 +47,17 @@ export default async function ArticlePage({ params, searchParams }: ArticlePageP
   }
 
   return (
-    <>
-      <PreferenceSync preferences={preferences} />
+    <PreferenceSync preferences={preferences}>
       <IssueShell
         issue={issue}
         preferences={preferences}
         issueHomePath="/"
         tocPath="/toc"
         discussionPath="/discussion"
-        alternateModePath={`/read/page/${view.article.startPage}`}
         currentRouteKind="article"
       >
         <ArticleView view={view} issueRoot="" preferences={preferences} />
       </IssueShell>
-    </>
+    </PreferenceSync>
   );
 }

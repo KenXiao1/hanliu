@@ -14,37 +14,38 @@ type IssueFallbackPageProps = {
 export default async function IssueFallbackPage({ params, searchParams }: IssueFallbackPageProps) {
   const [{ issueId }, resolvedSearchParams] = await Promise.all([params, searchParams ?? Promise.resolve({})]);
   const preferences = parsePreferences(resolvedSearchParams);
-  const [issue, pages] = await Promise.all([
+  const [issue, pagesHans, pagesHant] = await Promise.all([
     getIssueManifest(issueId).catch(() => null),
-    getIssuePages(issueId, preferences.script).catch(() => null)
+    getIssuePages(issueId, "zh-Hans").catch(() => null),
+    getIssuePages(issueId, "zh-Hant").catch(() => null)
   ]);
 
-  if (!issue || !pages) {
+  if (!issue || !pagesHans || !pagesHant) {
     notFound();
   }
 
   const issueRoot = `/issues/${issueId}`;
 
   return (
-    <>
-      <PreferenceSync preferences={preferences} />
+    <PreferenceSync preferences={preferences}>
       <IssueShell
         issue={issue}
         preferences={preferences}
         issueHomePath={issueRoot}
         tocPath={`${issueRoot}/toc`}
         discussionPath={`${issueRoot}/discussion`}
-        alternateModePath={issue.articles[0] ? `${issueRoot}/article/${issue.articles[0].slug}` : `${issueRoot}/toc`}
         currentRouteKind="issue"
       >
         <IssueHome
           issue={issue}
-          coverPage={pages[0]}
-          script={preferences.script}
+          coverPages={{
+            "zh-Hans": pagesHans[0],
+            "zh-Hant": pagesHant[0]
+          }}
           issueHomePath={issueRoot}
           discussionPath={`${issueRoot}/discussion`}
         />
       </IssueShell>
-    </>
+    </PreferenceSync>
   );
 }
