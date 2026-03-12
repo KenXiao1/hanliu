@@ -41,6 +41,8 @@ lib/                     内容模型、仓库、偏好与域名解析
 scripts/pdf-extract/     PDF 预处理脚本
 data/issues/issue-01/    生成后的 manifest 与页面数据
 public/generated/        生成后的页面图与插图资源
+reports/lighthouse/      Lighthouse 检查快照
+references/design/       视觉参考素材
 tests/                   单元测试
 ```
 

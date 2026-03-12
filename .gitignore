@@ -1,6 +1,13 @@
 node_modules/
 .next/
+
 __pycache__/
 .pytest_cache/
 *.pyc
+
 .env*.local
+
+# Local runtime artifacts
+.tmp-*
+*.log
+*.pid
