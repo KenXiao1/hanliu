@@ -1,3 +1,4 @@
+import React from "react";
 import type { Metadata, Viewport } from "next";
 import { LXGW_WenKai_TC, Noto_Serif_TC } from "next/font/google";
 
@@ -32,10 +33,6 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="zh-Hans" suppressHydrationWarning>
-      <head>
-        <link rel="dns-prefetch" href="https://giscus.app" />
-        <link rel="preconnect" href="https://giscus.app" crossOrigin="anonymous" />
-      </head>
       <body className={`${bodyFont.variable} ${displayFont.variable}`}>{children}</body>
     </html>
   );

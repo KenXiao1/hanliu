@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import type { ReaderPreferences } from "@/lib/preferences";
+import { getLayoutPageImageProps } from "@/lib/reader-images";
 import { withSearchParams } from "@/lib/url";
 
 type PageViewProps = {
@@ -23,6 +24,10 @@ export function PageView({ pageView, issueRoot, preferences }: PageViewProps) {
   }
 
   const spread = pageView.spread[preferences.script];
+  const imageProps = getLayoutPageImageProps({
+    pageNumber: page.pageNumber,
+    viewport: page.viewport
+  });
 
   return (
     <div className="layout-reader">
@@ -38,10 +43,11 @@ export function PageView({ pageView, issueRoot, preferences }: PageViewProps) {
             src={page.renderedPageAsset}
             alt={`《漢留》 第 ${page.pageNumber} 页`}
             className="layout-page-image"
-            width={Math.round(page.viewport.width * 2)}
-            height={Math.round(page.viewport.height * 2)}
-            priority={page.pageNumber <= 2}
-            sizes="(max-width: 768px) 92vw, min(920px, calc(100vw - 140px))"
+            width={imageProps.width}
+            height={imageProps.height}
+            quality={imageProps.quality}
+            priority={imageProps.priority}
+            sizes={imageProps.sizes}
           />
         </div>
       </div>
