@@ -3,7 +3,7 @@
 import Link from "next/link";
 
 import { useReaderPreferences } from "@/components/site/preference-sync";
-import { buildIssuePdfApiPath } from "@/lib/content/pdf";
+import { buildIssuePdfAssetPath } from "@/lib/content/pdf";
 
 export function PdfView({
   issueId,
@@ -13,7 +13,7 @@ export function PdfView({
   issueTitle: string;
 }) {
   const { preferences } = useReaderPreferences();
-  const pdfSrc = buildIssuePdfApiPath(issueId, preferences.script);
+  const pdfSrc = buildIssuePdfAssetPath(issueId, preferences.script);
 
   return (
     <section className="pdf-reader">

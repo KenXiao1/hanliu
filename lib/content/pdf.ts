@@ -8,12 +8,23 @@ const ISSUE_PDF_FILENAMES: Partial<Record<string, Record<LocaleCode, string>>> =
   }
 };
 
+const ISSUE_PDF_ASSET_PATHS: Partial<Record<string, Record<LocaleCode, string>>> = {
+  "issue-01": {
+    "zh-Hans": "/pdfs/issue-01/zh-Hans.pdf",
+    "zh-Hant": "/pdfs/issue-01/zh-Hant.pdf"
+  }
+};
+
 export function buildIssuePdfPagePath(issueRoot: string, script: LocaleCode) {
   return withSearchParams(`${issueRoot.replace(/\/$/, "")}/pdf`, { script });
 }
 
 export function buildIssuePdfApiPath(issueId: string, script: LocaleCode) {
   return withSearchParams(`/api/issues/${issueId}/pdf`, { script });
+}
+
+export function buildIssuePdfAssetPath(issueId: string, script: LocaleCode) {
+  return ISSUE_PDF_ASSET_PATHS[issueId]?.[script] ?? buildIssuePdfApiPath(issueId, script);
 }
 
 export function getIssuePdfFileName(issueId: string, script: LocaleCode) {

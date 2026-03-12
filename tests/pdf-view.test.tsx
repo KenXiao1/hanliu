@@ -6,6 +6,7 @@ import { describe, expect, it, vi } from "vitest";
 import { PdfView } from "@/components/site/pdf-view";
 import { PreferenceSync } from "@/components/site/preference-sync";
 import { ReaderToolbar } from "@/components/site/reader-toolbar";
+import { buildIssuePdfAssetPath } from "@/lib/content/pdf";
 import type { ReaderPreferences } from "@/lib/preferences";
 
 globalThis.React = React;
@@ -47,15 +48,15 @@ describe("PdfView", () => {
       </PreferenceSync>
     );
 
-    expect(screen.getByTitle("漢留 PDF 在线阅读").getAttribute("src")).toContain(
-      "/api/issues/issue-01/pdf?script=zh-Hans"
+    expect(screen.getByTitle("漢留 PDF 在线阅读").getAttribute("src")).toBe(
+      buildIssuePdfAssetPath("issue-01", "zh-Hans")
     );
 
     await user.click(screen.getByRole("button", { name: "阅读设置" }));
     await user.click(screen.getByRole("button", { name: /繁/ }));
 
-    expect(screen.getByTitle("漢留 PDF 在线阅读").getAttribute("src")).toContain(
-      "/api/issues/issue-01/pdf?script=zh-Hant"
+    expect(screen.getByTitle("漢留 PDF 在线阅读").getAttribute("src")).toBe(
+      buildIssuePdfAssetPath("issue-01", "zh-Hant")
     );
   });
 });
