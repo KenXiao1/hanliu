@@ -1,0 +1,83 @@
+"filename", "language", "Markdown", "JSON with Comments", "TypeScript", "TypeScript JSX", "pip requirements", "JSON", "JavaScript", "Python", "PostCSS", "comment", "blank", "total"
+"d:\Hanliu\CLAUDE.md", "Markdown", 49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 25, 74
+"d:\Hanliu\README.md", "Markdown", 130, 0, 0, 0, 0, 0, 0, 0, 0, 0, 63, 193
+"d:\Hanliu\app\api\issues\[issueId]\pdf\route.ts", "TypeScript", 0, 0, 17, 0, 0, 0, 0, 0, 0, 0, 7, 24
+"d:\Hanliu\app\article\[slug]\page.tsx", "TypeScript JSX", 0, 0, 0, 54, 0, 0, 0, 0, 0, 0, 10, 64
+"d:\Hanliu\app\discussion\page.tsx", "TypeScript JSX", 0, 0, 0, 33, 0, 0, 0, 0, 0, 0, 6, 39
+"d:\Hanliu\app\globals.css", "PostCSS", 0, 0, 0, 0, 0, 0, 0, 0, 623, 22, 122, 767
+"d:\Hanliu\app\issues\[issueId]\article\[slug]\page.tsx", "TypeScript JSX", 0, 0, 0, 58, 0, 0, 0, 0, 0, 0, 11, 69
+"d:\Hanliu\app\issues\[issueId]\discussion\page.tsx", "TypeScript JSX", 0, 0, 0, 36, 0, 0, 0, 0, 0, 0, 7, 43
+"d:\Hanliu\app\issues\[issueId]\page.tsx", "TypeScript JSX", 0, 0, 0, 45, 0, 0, 0, 0, 0, 0, 7, 52
+"d:\Hanliu\app\issues\[issueId]\pdf\page.tsx", "TypeScript JSX", 0, 0, 0, 33, 0, 0, 0, 0, 0, 0, 7, 40
+"d:\Hanliu\app\issues\[issueId]\read\page\[page]\page.tsx", "TypeScript JSX", 0, 0, 0, 40, 0, 0, 0, 0, 0, 0, 9, 49
+"d:\Hanliu\app\issues\[issueId]\toc\page.tsx", "TypeScript JSX", 0, 0, 0, 33, 0, 0, 0, 0, 0, 0, 7, 40
+"d:\Hanliu\app\issues\page.tsx", "TypeScript JSX", 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 3, 9
+"d:\Hanliu\app\layout.tsx", "TypeScript JSX", 0, 0, 0, 22, 0, 0, 0, 0, 0, 0, 5, 27
+"d:\Hanliu\app\page.tsx", "TypeScript JSX", 0, 0, 0, 51, 0, 0, 0, 0, 0, 0, 7, 58
+"d:\Hanliu\app\pdf\page.tsx", "TypeScript JSX", 0, 0, 0, 33, 0, 0, 0, 0, 0, 0, 6, 39
+"d:\Hanliu\app\read\page\[page]\page.tsx", "TypeScript JSX", 0, 0, 0, 35, 0, 0, 0, 0, 0, 0, 7, 42
+"d:\Hanliu\app\toc\page.tsx", "TypeScript JSX", 0, 0, 0, 33, 0, 0, 0, 0, 0, 0, 6, 39
+"d:\Hanliu\components\site\article-view.tsx", "TypeScript JSX", 0, 0, 0, 92, 0, 0, 0, 0, 0, 0, 12, 104
+"d:\Hanliu\components\site\discussion-view.tsx", "TypeScript JSX", 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 2, 15
+"d:\Hanliu\components\site\giscus-comments.tsx", "TypeScript JSX", 0, 0, 0, 34, 0, 0, 0, 0, 0, 0, 6, 40
+"d:\Hanliu\components\site\issue-home.tsx", "TypeScript JSX", 0, 0, 0, 99, 0, 0, 0, 0, 0, 0, 8, 107
+"d:\Hanliu\components\site\issue-shell.tsx", "TypeScript JSX", 0, 0, 0, 47, 0, 0, 0, 0, 0, 0, 6, 53
+"d:\Hanliu\components\site\lazy-giscus.tsx", "TypeScript JSX", 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 4, 17
+"d:\Hanliu\components\site\page-view.tsx", "TypeScript JSX", 0, 0, 0, 73, 0, 0, 0, 0, 0, 0, 12, 85
+"d:\Hanliu\components\site\pdf-view.tsx", "TypeScript JSX", 0, 0, 0, 35, 0, 0, 0, 0, 0, 0, 6, 41
+"d:\Hanliu\components\site\preference-sync.tsx", "TypeScript JSX", 0, 0, 0, 134, 0, 0, 0, 0, 0, 0, 29, 163
+"d:\Hanliu\components\site\reader-toolbar.tsx", "TypeScript JSX", 0, 0, 0, 121, 0, 0, 0, 0, 0, 0, 13, 134
+"d:\Hanliu\components\site\series-home.tsx", "TypeScript JSX", 0, 0, 0, 84, 0, 0, 0, 0, 0, 0, 6, 90
+"d:\Hanliu\components\site\toc-view.tsx", "TypeScript JSX", 0, 0, 0, 47, 0, 0, 0, 0, 0, 0, 7, 54
+"d:\Hanliu\data\issues\issue-01\manifest.json", "JSON", 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1
+"d:\Hanliu\data\issues\issue-01\pages.zh-Hans.json", "JSON", 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1
+"d:\Hanliu\data\issues\issue-01\pages.zh-Hant.json", "JSON", 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1
+"d:\Hanliu\eslint.config.mjs", "JavaScript", 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 5, 14
+"d:\Hanliu\lib\content\manifest.ts", "TypeScript", 0, 0, 46, 0, 0, 0, 0, 0, 0, 0, 8, 54
+"d:\Hanliu\lib\content\pdf.ts", "TypeScript", 0, 0, 26, 0, 0, 0, 0, 0, 0, 0, 7, 33
+"d:\Hanliu\lib\content\queries.ts", "TypeScript", 0, 0, 56, 0, 0, 0, 0, 0, 0, 0, 7, 63
+"d:\Hanliu\lib\content\repository.ts", "TypeScript", 0, 0, 66, 0, 0, 0, 0, 0, 0, 0, 17, 83
+"d:\Hanliu\lib\content\types.ts", "TypeScript", 0, 0, 65, 0, 0, 0, 0, 0, 0, 0, 9, 74
+"d:\Hanliu\lib\issue-routing.ts", "TypeScript", 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 6, 18
+"d:\Hanliu\lib\preferences.ts", "TypeScript", 0, 0, 27, 0, 0, 0, 0, 0, 0, 0, 6, 33
+"d:\Hanliu\lib\reader-images.ts", "TypeScript", 0, 0, 31, 0, 0, 0, 0, 0, 0, 0, 4, 35
+"d:\Hanliu\lib\reader-state.ts", "TypeScript", 0, 0, 27, 0, 0, 0, 0, 0, 0, 0, 8, 35
+"d:\Hanliu\lib\site-context.ts", "TypeScript", 0, 0, 36, 0, 0, 0, 0, 0, 0, 0, 7, 43
+"d:\Hanliu\lib\url.ts", "TypeScript", 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 3, 16
+"d:\Hanliu\next-env.d.ts", "TypeScript", 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 2, 7
+"d:\Hanliu\next.config.ts", "TypeScript", 0, 0, 31, 0, 0, 0, 0, 0, 0, 0, 3, 34
+"d:\Hanliu\package-lock.json", "JSON", 0, 0, 0, 0, 0, 7666, 0, 0, 0, 0, 1, 7667
+"d:\Hanliu\package.json", "JSON", 0, 0, 0, 0, 0, 35, 0, 0, 0, 0, 1, 36
+"d:\Hanliu\reports\lighthouse\.lighthouse-after-3101.json", "JSON", 0, 0, 0, 0, 0, 10157, 0, 0, 0, 0, 0, 10157
+"d:\Hanliu\reports\lighthouse\.lighthouse-baseline-3100.json", "JSON", 0, 0, 0, 0, 0, 11463, 0, 0, 0, 0, 0, 11463
+"d:\Hanliu\reports\lighthouse\.lighthouse-current-issue-3001.json", "JSON", 0, 0, 0, 0, 0, 6328, 0, 0, 0, 0, 0, 6328
+"d:\Hanliu\reports\lighthouse\.lighthouse-current-issue-3002.json", "JSON", 0, 0, 0, 0, 0, 6328, 0, 0, 0, 0, 0, 6328
+"d:\Hanliu\reports\lighthouse\.lighthouse-current-issue.json", "JSON", 0, 0, 0, 0, 0, 11345, 0, 0, 0, 0, 0, 11345
+"d:\Hanliu\reports\lighthouse\.lighthouse-final-3102.json", "JSON", 0, 0, 0, 0, 0, 10170, 0, 0, 0, 0, 0, 10170
+"d:\Hanliu\reports\lighthouse\.lighthouse-home-3012.json", "JSON", 0, 0, 0, 0, 0, 6804, 0, 0, 0, 0, 0, 6804
+"d:\Hanliu\reports\lighthouse\.lighthouse-home-prod.json", "JSON", 0, 0, 0, 0, 0, 6786, 0, 0, 0, 0, 0, 6786
+"d:\Hanliu\reports\lighthouse\.lighthouse-home.json", "JSON", 0, 0, 0, 0, 0, 6804, 0, 0, 0, 0, 0, 6804
+"d:\Hanliu\reports\lighthouse\.lighthouse-read-3012.json", "JSON", 0, 0, 0, 0, 0, 6967, 0, 0, 0, 0, 0, 6967
+"d:\Hanliu\requirements.txt", "pip requirements", 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 1, 4
+"d:\Hanliu\scripts\pdf-extract\extract_issue.py", "Python", 0, 0, 0, 0, 0, 0, 0, 206, 0, 0, 56, 262
+"d:\Hanliu\tests\content-queries.test.ts", "TypeScript", 0, 0, 81, 0, 0, 0, 0, 0, 0, 0, 8, 89
+"d:\Hanliu\tests\giscus-comments.test.tsx", "TypeScript JSX", 0, 0, 0, 42, 0, 0, 0, 0, 0, 0, 9, 51
+"d:\Hanliu\tests\issue-home.test.tsx", "TypeScript JSX", 0, 0, 0, 110, 0, 0, 0, 0, 0, 0, 14, 124
+"d:\Hanliu\tests\issue-manifest.test.ts", "TypeScript", 0, 0, 46, 0, 0, 0, 0, 0, 0, 0, 7, 53
+"d:\Hanliu\tests\issue-shell.test.tsx", "TypeScript JSX", 0, 0, 0, 55, 0, 0, 0, 0, 0, 0, 9, 64
+"d:\Hanliu\tests\next-config.test.ts", "TypeScript", 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 4, 14
+"d:\Hanliu\tests\pdf-routing.test.ts", "TypeScript", 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 4, 16
+"d:\Hanliu\tests\pdf-view.test.tsx", "TypeScript JSX", 0, 0, 0, 52, 0, 0, 0, 0, 0, 0, 10, 62
+"d:\Hanliu\tests\reader-image-props.test.ts", "TypeScript", 0, 0, 46, 0, 0, 0, 0, 0, 0, 0, 5, 51
+"d:\Hanliu\tests\reader-state.test.ts", "TypeScript", 0, 0, 30, 0, 0, 0, 0, 0, 0, 0, 6, 36
+"d:\Hanliu\tests\reader-toolbar.test.tsx", "TypeScript JSX", 0, 0, 0, 123, 0, 0, 0, 0, 0, 0, 23, 146
+"d:\Hanliu\tests\root-layout.test.tsx", "TypeScript JSX", 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 6, 29
+"d:\Hanliu\tests\series-home.test.tsx", "TypeScript JSX", 0, 0, 0, 75, 0, 0, 0, 0, 0, 0, 14, 89
+"d:\Hanliu\tests\site-context.test.ts", "TypeScript", 0, 0, 28, 0, 0, 0, 0, 0, 0, 0, 5, 33
+"d:\Hanliu\tests\standalone-stories.test.ts", "TypeScript", 0, 0, 24, 0, 0, 0, 0, 0, 0, 0, 6, 30
+"d:\Hanliu\tsconfig.json", "JSON with Comments", 0, 41, 0, 0, 0, 0, 0, 0, 0, 0, 1, 42
+"d:\Hanliu\vitest.config.ts", "TypeScript", 0, 0, 14, 0, 0, 0, 0, 0, 0, 0, 2, 16
+"d:\Hanliu\vitest.setup.ts", "TypeScript", 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 2
+"d:\Hanliu\《汉留》创刊故事简体版-胡又天的文章.md", "Markdown", 145, 0, 0, 0, 0, 0, 0, 0, 0, 0, 134, 279
+"d:\Hanliu\《汉留》创刊故事繁体版.md", "Markdown", 141, 0, 0, 0, 0, 0, 0, 0, 0, 0, 134, 275
+"Total", "-", 465, 41, 745, 1784, 3, 90856, 9, 206, 623, 27, 979, 95738

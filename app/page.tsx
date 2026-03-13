@@ -2,6 +2,7 @@ import { PreferenceSync } from "@/components/site/preference-sync";
 import { IssueHome } from "@/components/site/issue-home";
 import { IssueShell } from "@/components/site/issue-shell";
 import { SeriesHome } from "@/components/site/series-home";
+import { getStandaloneStories } from "@/lib/content/stories";
 import { getAllIssues, getIssueManifest, getIssuePages } from "@/lib/content/repository";
 import { getHostSiteContext } from "@/lib/issue-routing";
 import { parsePreferences } from "@/lib/preferences";
@@ -46,12 +47,12 @@ export default async function Home({ searchParams }: HomeProps) {
     );
   }
 
-  const issues = await getAllIssues();
+  const [issues, stories] = await Promise.all([getAllIssues(), getStandaloneStories()]);
 
   return (
     <>
       <PreferenceSync preferences={preferences} />
-      <SeriesHome issues={issues} />
+      <SeriesHome issues={issues} stories={stories} />
     </>
   );
 }

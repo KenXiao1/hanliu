@@ -2,9 +2,16 @@ import Link from "next/link";
 import { Github } from "lucide-react";
 
 import { buildIssuePdfPagePath } from "@/lib/content/pdf";
+import type { StandaloneStorySummary } from "@/lib/content/stories";
 import type { IssueManifest } from "@/lib/content/types";
 
-export function SeriesHome({ issues }: { issues: IssueManifest[] }) {
+export function SeriesHome({
+  issues,
+  stories = []
+}: {
+  issues: IssueManifest[];
+  stories?: StandaloneStorySummary[];
+}) {
   const featuredIssue = issues[0] ?? null;
   const hasSingleIssue = issues.length === 1 && featuredIssue;
 
@@ -57,6 +64,23 @@ export function SeriesHome({ issues }: { issues: IssueManifest[] }) {
           </div>
         </div>
       </section>
+
+      {stories.length > 0 ? (
+        <section className="story-grid-section">
+          <div className="issue-grid story-grid">
+            {stories.map((story) => (
+              <article key={story.slug} className="issue-card story-card">
+                <p className="issue-card-kicker">Story</p>
+                <h2>{story.titleHans}</h2>
+                <p>{story.summaryHans}</p>
+                <Link href={`/stories/${story.slug}`} className="hero-link">
+                  阅读文章
+                </Link>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section className="issue-grid">
         {issues.map((issue) => (
