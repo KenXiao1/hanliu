@@ -626,11 +626,54 @@ html[data-preference-shift="on"] .issue-content {
   color: var(--accent);
 }
 
+.article-page-note {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  gap: 0.2rem;
+  margin: 0 0 18px auto;
+  width: 100%;
+  font-size: calc(0.9rem * var(--article-font-scale));
+  line-height: 1.45;
+  color: var(--muted);
+  text-align: right;
+}
+
+.article-page-note sup {
+  font-size: 0.72em;
+  line-height: 1;
+}
+
 .article-blocks p {
   margin: 0 0 1em;
   font-size: calc(1.08rem * var(--article-font-scale));
   color: var(--text);
   line-height: 1.9;
+}
+
+.article-footnotes {
+  list-style: none;
+  margin: 22px 0 0;
+  padding: 18px 0 0;
+  display: grid;
+  gap: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.article-footnotes li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  align-items: start;
+  font-size: calc(0.92rem * var(--article-font-scale));
+  line-height: 1.75;
+  color: var(--muted);
+}
+
+.article-footnote-marker {
+  min-width: 1.1rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
 }
 
 .article-gallery {
