@@ -535,6 +535,11 @@ html[data-preference-shift="on"] .issue-content {
   gap: 24px;
 }
 
+.article-pages {
+  display: grid;
+  gap: 10px;
+}
+
 .article-toc {
   position: sticky;
   top: 20px;
@@ -558,14 +563,9 @@ html[data-preference-shift="on"] .issue-content {
 }
 
 .article-page-section {
-  padding: 22px 0;
-  border-top: 1px solid var(--border);
+  padding: 0;
   content-visibility: auto;
   contain-intrinsic-size: auto 600px;
-}
-
-.article-page-section:first-child {
-  border-top: 0;
 }
 
 .standalone-story-shell {
@@ -625,17 +625,8 @@ html[data-preference-shift="on"] .issue-content {
   text-underline-offset: 3px;
 }
 
-.article-page-meta {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 14px;
-  color: var(--muted);
-  font-size: 0.95rem;
-}
-
 .section-anchor {
-  margin: 18px 0 10px;
+  margin: 20px 0 12px;
   font-family: var(--font-display), serif;
   font-size: calc(1.2rem * var(--article-font-scale));
   color: var(--accent);

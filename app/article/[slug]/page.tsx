@@ -56,7 +56,7 @@ export default async function ArticlePage({ params, searchParams }: ArticlePageP
         discussionPath="/discussion"
         currentRouteKind="article"
       >
-        <ArticleView view={view} issueRoot="" preferences={preferences} />
+        <ArticleView view={view} preferences={preferences} />
       </IssueShell>
     </PreferenceSync>
   );

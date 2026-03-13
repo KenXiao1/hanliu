@@ -61,7 +61,7 @@ export default async function IssueArticleFallbackPage({
         discussionPath={`${issueRoot}/discussion`}
         currentRouteKind="article"
       >
-        <ArticleView view={view} issueRoot={issueRoot} preferences={preferences} />
+        <ArticleView view={view} preferences={preferences} />
       </IssueShell>
     </PreferenceSync>
   );

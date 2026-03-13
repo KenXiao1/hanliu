@@ -1,21 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 
 import { LazyGiscusComments } from "@/components/site/lazy-giscus";
 import { useReaderPreferences } from "@/components/site/preference-sync";
 import type { ArticleView as ArticleViewModel } from "@/lib/content/queries";
 import type { ReaderPreferences } from "@/lib/preferences";
-import { withSearchParams } from "@/lib/url";
 
 export function ArticleView({
   view,
-  issueRoot,
   preferences
 }: {
   view: ArticleViewModel;
-  issueRoot: string;
   preferences: ReaderPreferences;
 }) {
   const { preferences: activePreferences } = useReaderPreferences(preferences);
@@ -28,7 +24,7 @@ export function ArticleView({
         <header className="page-banner article-banner">
           <p className="eyebrow">文章模式</p>
           <h1>{title}</h1>
-          <p>页 {view.pageRange}</p>
+          <p>连续展开全文，保留章节定位。</p>
         </header>
 
         <div className="article-columns">
@@ -49,20 +45,6 @@ export function ArticleView({
 
               return (
                 <section key={page.pageId} className="article-page-section">
-                  <div className="article-page-meta">
-                    <span>第 {page.pageNumber} 页</span>
-                    <Link
-                      href={withSearchParams(`${issueRoot}/read/page/${page.pageNumber}`, {
-                        script: activePreferences.script,
-                        theme: activePreferences.theme,
-                        mode: "layout",
-                        pageZoom: activePreferences.pageZoom
-                      })}
-                    >
-                      查看原版式
-                    </Link>
-                  </div>
-
                   {sectionLinks.map((entry) => (
                     <div key={entry.id} id={entry.id} className="section-anchor">
                       {activePreferences.script === "zh-Hant" ? entry.titleHant : entry.titleHans}

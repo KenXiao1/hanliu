@@ -1,11 +1,7 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
-import { PageView } from "@/components/site/page-view";
-import { PreferenceSync } from "@/components/site/preference-sync";
-import { IssueShell } from "@/components/site/issue-shell";
-import { getIssueManifest, getPageView } from "@/lib/content/repository";
-import { resolveImplicitIssueId } from "@/lib/issue-routing";
 import { parsePreferences } from "@/lib/preferences";
+import { withSearchParams } from "@/lib/url";
 
 type PageReaderProps = {
   params: Promise<{ page: string }>;
@@ -21,21 +17,10 @@ export default async function PageReader({ params, searchParams }: PageReaderPro
   }
 
   const preferences = parsePreferences(resolvedSearchParams);
-  const issueId = await resolveImplicitIssueId(`/read/page/${page}`);
-  const [issue, view] = await Promise.all([getIssueManifest(issueId), getPageView(issueId, pageNumber)]);
-
-  return (
-    <PreferenceSync preferences={preferences}>
-      <IssueShell
-        issue={issue}
-        preferences={preferences}
-        issueHomePath="/"
-        tocPath="/toc"
-        discussionPath="/discussion"
-        currentRouteKind="layout"
-      >
-        <PageView pageView={view} issueRoot="" preferences={preferences} />
-      </IssueShell>
-    </PreferenceSync>
+  redirect(
+    withSearchParams("/pdf", {
+      script: preferences.script,
+      theme: preferences.theme
+    })
   );
 }
