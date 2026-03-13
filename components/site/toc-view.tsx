@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { useReaderPreferences } from "@/components/site/preference-sync";
+import { buildIssuePdfPagePath } from "@/lib/content/pdf";
 import type { IssueManifest, LocaleCode } from "@/lib/content/types";
 import { withSearchParams } from "@/lib/url";
 
@@ -18,9 +19,7 @@ export function TocView({
   const { preferences } = useReaderPreferences({
     theme: "light",
     script,
-    mode: "article",
-    fontScale: 1,
-    pageZoom: 1
+    fontScale: 1
   });
   const articleByPage = new Map(issue.articles.map((article) => [article.startPage, article]));
 
@@ -35,8 +34,8 @@ export function TocView({
         {issue.toc.map((entry, index) => {
           const article = articleByPage.get(entry.page);
           const href = article
-            ? withSearchParams(`${issueRoot}/article/${article.slug}`, { ...preferences, mode: "article" })
-            : withSearchParams(`${issueRoot}/read/page/${entry.page}`, { ...preferences, mode: "layout" });
+            ? withSearchParams(`${issueRoot}/article/${article.slug}`, preferences)
+            : buildIssuePdfPagePath(issueRoot, preferences.script, preferences.theme);
 
           return (
             <li key={`${entry.page}-${index}`} className={`toc-item level-${entry.level}`}>

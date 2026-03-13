@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildArticleView, getPageSpread } from "@/lib/content/queries";
+import { buildArticleView } from "@/lib/content/queries";
 import type { ArticleManifest, PageData } from "@/lib/content/types";
 
 const article: ArticleManifest = {
@@ -77,12 +77,3 @@ describe("buildArticleView", () => {
   });
 });
 
-describe("getPageSpread", () => {
-  it("returns the current, previous and next page ids around a page", () => {
-    expect(getPageSpread(hansPages, 4)).toEqual({
-      current: hansPages[1],
-      previous: hansPages[0],
-      next: null
-    });
-  });
-});

@@ -1,3 +1,4 @@
+import type { ReaderTheme } from "@/lib/preferences";
 import type { LocaleCode } from "@/lib/content/types";
 import { withSearchParams } from "@/lib/url";
 
@@ -15,8 +16,8 @@ const ISSUE_PDF_ASSET_PATHS: Partial<Record<string, Record<LocaleCode, string>>>
   }
 };
 
-export function buildIssuePdfPagePath(issueRoot: string, script: LocaleCode) {
-  return withSearchParams(`${issueRoot.replace(/\/$/, "")}/pdf`, { script });
+export function buildIssuePdfPagePath(issueRoot: string, script: LocaleCode, theme?: ReaderTheme) {
+  return withSearchParams(`${issueRoot.replace(/\/$/, "")}/pdf`, { script, theme });
 }
 
 export function buildIssuePdfApiPath(issueId: string, script: LocaleCode) {

@@ -3,7 +3,7 @@ import { promises as fs } from "node:fs";
 
 import { cache } from "react";
 
-import { buildArticleView, getPageSpread } from "@/lib/content/queries";
+import { buildArticleView } from "@/lib/content/queries";
 import type { ArticleManifest, IssueManifest, LocaleCode, PageData } from "@/lib/content/types";
 
 const dataRoot = path.join(process.cwd(), "data", "issues");
@@ -43,32 +43,6 @@ export async function getArticleView(issueId: string, slug: string) {
     "zh-Hans": pagesHans,
     "zh-Hant": pagesHant
   });
-}
-
-export async function getPageView(issueId: string, pageNumber: number) {
-  const manifest = await getIssueManifest(issueId);
-  const [pagesHans, pagesHant] = await Promise.all([
-    getIssuePages(issueId, "zh-Hans"),
-    getIssuePages(issueId, "zh-Hant")
-  ]);
-
-  const pageHans = pagesHans.find((page) => page.pageNumber === pageNumber) ?? null;
-  const pageHant = pagesHant.find((page) => page.pageNumber === pageNumber) ?? null;
-  const currentArticle =
-    manifest.articles.find((article) => pageNumber >= article.startPage && pageNumber <= article.endPage) ?? null;
-
-  return {
-    pageNumber,
-    article: currentArticle,
-    locales: {
-      "zh-Hans": pageHans,
-      "zh-Hant": pageHant
-    },
-    spread: {
-      "zh-Hans": getPageSpread(pagesHans, pageNumber),
-      "zh-Hant": getPageSpread(pagesHant, pageNumber)
-    }
-  };
 }
 
 export async function getPageNumbers(issueId: string) {

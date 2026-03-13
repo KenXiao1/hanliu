@@ -24,7 +24,6 @@
     "Source Han Serif SC",
     serif;
   --reader-font-scale: 1;
-  --reader-page-zoom: 1;
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --transition-fast: 180ms var(--ease-out-expo);
   --transition-medium: 260ms var(--ease-out-expo);
@@ -84,12 +83,11 @@ img {
 }
 
 /* ── Surface level 1 — primary content ────────────────────── */
-/* hero, article-sheet, layout-stage: glass + shadow          */
+/* hero, article-sheet: glass + shadow                        */
 
 .series-hero,
 .issue-hero,
-.article-sheet,
-.layout-stage {
+.article-sheet {
   background: var(--bg-elevated);
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
@@ -227,15 +225,13 @@ img {
 .hero-link,
 .hero-link-alt,
 .toolbar-chip,
-.toolbar-link,
-.page-nav a {
+.toolbar-link {
   min-height: 44px;
   cursor: pointer;
 }
 
 .hero-link,
-.hero-link-alt,
-.page-nav a {
+.hero-link-alt {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -275,7 +271,6 @@ img {
 .hero-link-alt:hover,
 .toolbar-chip:hover,
 .toolbar-link:hover,
-.page-nav a:hover,
 .series-social-link:hover {
   transform: translateY(-1px);
   border-color: rgba(210, 178, 92, 0.6);
@@ -475,7 +470,6 @@ html[data-preference-shift="on"] .issue-content {
 .page-banner,
 .discussion-section,
 .toc-view,
-.layout-stage,
 .article-sheet {
   border-radius: 16px;
 }
@@ -665,13 +659,6 @@ html[data-preference-shift="on"] .issue-content {
   background: rgba(255, 255, 255, 0.04);
 }
 
-/* ── Layout reader (page view) ────────────────────────────── */
-
-.layout-reader {
-  display: grid;
-  gap: 20px;
-}
-
 .pdf-reader {
   display: grid;
   gap: 20px;
@@ -701,35 +688,6 @@ html[data-preference-shift="on"] .issue-content {
   min-height: 78vh;
   border: 0;
   background: color-mix(in srgb, var(--bg) 86%, #000 14%);
-}
-
-.layout-stage {
-  padding: 28px;
-  overflow: auto;
-}
-
-.layout-frame {
-  width: fit-content;
-  margin: 0 auto;
-  transform-origin: top center;
-}
-
-.layout-page-image {
-  width: min(920px, calc(100vw - 140px));
-  height: auto;
-  border-radius: 20px;
-  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.28);
-}
-
-.page-nav {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  gap: 12px;
-  align-items: center;
-}
-
-.page-nav a:last-child {
-  justify-self: end;
 }
 
 /* ── Responsive ───────────────────────────────────────────── */
@@ -776,10 +734,6 @@ html[data-preference-shift="on"] .issue-content {
   .issue-stats,
   .issue-card dl {
     grid-template-columns: 1fr;
-  }
-
-  .layout-page-image {
-    width: min(92vw, 920px);
   }
 
   .toolbar-actions {

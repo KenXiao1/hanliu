@@ -5,7 +5,7 @@ import { startTransition } from "react";
 import Link from "next/link";
 import { Languages, MoonStar, SunMedium, Type } from "lucide-react";
 
-import { clampFontScale, clampPageZoom } from "@/lib/reader-state";
+import { clampFontScale } from "@/lib/reader-state";
 import type { ReaderPreferences } from "@/lib/preferences";
 import { withSearchParams } from "@/lib/url";
 import { useReaderPreferences } from "@/components/site/preference-sync";
@@ -14,8 +14,7 @@ type ReaderToolbarProps = {
   issueHomePath: string;
   tocPath: string;
   discussionPath: string;
-  alternateModePath?: string;
-  currentRouteKind: "article" | "layout" | "toc" | "issue" | "discussion" | "pdf";
+  currentRouteKind: "article" | "toc" | "issue" | "discussion" | "pdf";
   preferences: ReaderPreferences;
 };
 
@@ -93,38 +92,17 @@ export function ReaderToolbar({
         </div>
 
         {currentRouteKind !== "pdf" ? (
-          <div
-            className="toolbar-control-group"
-            aria-label={currentRouteKind === "layout" ? "版式缩放" : "字号调节"}
-            role="group"
-          >
-            {currentRouteKind === "layout" ? (
-              <>
-                <button type="button" className="toolbar-chip" onClick={() => replaceCurrent({ pageZoom: clampPageZoom(activePreferences.pageZoom - 0.2) })}>
-                  <Type size={15} />
-                  远
-                </button>
-                <button type="button" className="toolbar-chip is-active">
-                  {Math.round(clampPageZoom(activePreferences.pageZoom) * 100)}%
-                </button>
-                <button type="button" className="toolbar-chip" onClick={() => replaceCurrent({ pageZoom: clampPageZoom(activePreferences.pageZoom + 0.2) })}>
-                  近
-                </button>
-              </>
-            ) : (
-              <>
-                <button type="button" className="toolbar-chip" onClick={() => replaceCurrent({ fontScale: clampFontScale(activePreferences.fontScale - 0.1) })}>
-                  <Type size={15} />
-                  小
-                </button>
-                <button type="button" className="toolbar-chip is-active">
-                  {Math.round(clampFontScale(activePreferences.fontScale) * 100)}%
-                </button>
-                <button type="button" className="toolbar-chip" onClick={() => replaceCurrent({ fontScale: clampFontScale(activePreferences.fontScale + 0.1) })}>
-                  大
-                </button>
-              </>
-            )}
+          <div className="toolbar-control-group" aria-label="字号调节" role="group">
+            <button type="button" className="toolbar-chip" onClick={() => replaceCurrent({ fontScale: clampFontScale(activePreferences.fontScale - 0.1) })}>
+              <Type size={15} />
+              小
+            </button>
+            <button type="button" className="toolbar-chip is-active">
+              {Math.round(clampFontScale(activePreferences.fontScale) * 100)}%
+            </button>
+            <button type="button" className="toolbar-chip" onClick={() => replaceCurrent({ fontScale: clampFontScale(activePreferences.fontScale + 0.1) })}>
+              大
+            </button>
           </div>
         ) : null}
       </div>

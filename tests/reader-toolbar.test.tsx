@@ -10,7 +10,7 @@ globalThis.React = React;
 
 const replaceMock = vi.fn();
 let mockedPathname = "/issues/issue-01";
-let mockedSearchParams = "mode=article&script=zh-Hans&theme=light";
+let mockedSearchParams = "script=zh-Hans&theme=light";
 
 vi.mock("next/link", () => ({
   default: ({
@@ -35,16 +35,14 @@ vi.mock("next/navigation", () => ({
 const basePreferences: ReaderPreferences = {
   theme: "light",
   script: "zh-Hans",
-  mode: "article",
-  fontScale: 1,
-  pageZoom: 1
+  fontScale: 1
 };
 
 describe("ReaderToolbar", () => {
   beforeEach(() => {
     replaceMock.mockReset();
     mockedPathname = "/issues/issue-01";
-    mockedSearchParams = "mode=article&script=zh-Hans&theme=light";
+    mockedSearchParams = "script=zh-Hans&theme=light";
   });
 
   it("toggles theme locally without triggering a route replace", async () => {
@@ -55,7 +53,6 @@ describe("ReaderToolbar", () => {
         issueHomePath="/issues/issue-01"
         tocPath="/issues/issue-01/toc"
         discussionPath="/issues/issue-01/discussion"
-        alternateModePath="/issues/issue-01/read/page/1"
         currentRouteKind="issue"
         preferences={basePreferences}
       />
@@ -70,23 +67,22 @@ describe("ReaderToolbar", () => {
     expect(screen.getByRole("button", { name: "切换到日读" })).toBeTruthy();
   });
 
-  it("shows script and zoom controls directly in the toolbar", () => {
+  it("shows script and font controls directly in the toolbar", () => {
     render(
       <ReaderToolbar
         issueHomePath="/issues/issue-01"
         tocPath="/issues/issue-01/toc"
         discussionPath="/issues/issue-01/discussion"
-        alternateModePath="/issues/issue-01/read/page/1"
-        currentRouteKind="layout"
-        preferences={{ ...basePreferences, theme: "dark", mode: "layout" }}
+        currentRouteKind="article"
+        preferences={{ ...basePreferences, theme: "dark" }}
       />
     );
 
     expect(screen.queryByRole("button", { name: "阅读设置" })).toBeNull();
     expect(screen.getByRole("button", { name: /简/ })).toBeTruthy();
     expect(screen.getByRole("button", { name: /繁/ })).toBeTruthy();
-    expect(screen.getByRole("button", { name: /远/ })).toBeTruthy();
-    expect(screen.getByRole("button", { name: /近/ })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /小/ })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /大/ })).toBeTruthy();
   });
 
   it("switches script locally without triggering a route replace", async () => {
@@ -97,8 +93,7 @@ describe("ReaderToolbar", () => {
         issueHomePath="/issues/issue-01"
         tocPath="/issues/issue-01/toc"
         discussionPath="/issues/issue-01/discussion"
-        alternateModePath="/issues/issue-01/read/page/1"
-        currentRouteKind="layout"
+        currentRouteKind="article"
         preferences={basePreferences}
       />
     );
@@ -116,7 +111,6 @@ describe("ReaderToolbar", () => {
         issueHomePath="/issues/issue-01"
         tocPath="/issues/issue-01/toc"
         discussionPath="/issues/issue-01/discussion"
-        alternateModePath="/issues/issue-01/read/page/1"
         currentRouteKind="article"
         preferences={basePreferences}
       />
@@ -133,7 +127,6 @@ describe("ReaderToolbar", () => {
         issueHomePath="/issues/issue-01"
         tocPath="/issues/issue-01/toc"
         discussionPath="/issues/issue-01/discussion"
-        alternateModePath="/issues/issue-01/read/page/1"
         currentRouteKind="article"
         preferences={basePreferences}
       />

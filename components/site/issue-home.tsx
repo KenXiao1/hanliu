@@ -44,10 +44,10 @@ export function IssueHome({
           <p className="eyebrow">第一集在线阅读</p>
           <h1>{issue.title}</h1>
           <p className="issue-subtitle">{issue.subtitle}</p>
-          <p>从原版排印进入，再按目录与文章慢慢展开。</p>
+          <p>先看 PDF 原文，再按目录与文章连续展开。</p>
           <div className="series-actions">
             <Link
-              href={buildIssuePdfPagePath(issueHomePath, preferences.script)}
+              href={buildIssuePdfPagePath(issueHomePath, preferences.script, preferences.theme)}
               className="hero-link"
             >
               阅读 PDF
@@ -55,8 +55,7 @@ export function IssueHome({
             <Link
               href={withSearchParams(`${issueHomePath.replace(/\/$/, "")}/toc`, {
                 ...preferences,
-                script: preferences.script,
-                mode: "article"
+                script: preferences.script
               })}
               className="hero-link hero-link-alt"
             >
@@ -91,10 +90,7 @@ export function IssueHome({
               {article.startPage}-{article.endPage}
             </span>
             <Link
-              href={withSearchParams(`${issueHomePath.replace(/\/$/, "")}/article/${article.slug}`, {
-                ...preferences,
-                mode: "article"
-              })}
+              href={withSearchParams(`${issueHomePath.replace(/\/$/, "")}/article/${article.slug}`, preferences)}
             >
               进入文章
             </Link>

@@ -11,8 +11,7 @@ type IssueShellProps = {
   issueHomePath: string;
   tocPath: string;
   discussionPath: string;
-  alternateModePath?: string;
-  currentRouteKind: "article" | "layout" | "toc" | "issue" | "discussion" | "pdf";
+  currentRouteKind: "article" | "toc" | "issue" | "discussion" | "pdf";
   children: ReactNode;
 };
 
@@ -34,7 +33,7 @@ export function IssueShell({
           <span>{issue.subtitle}</span>
         </Link>
         <p className="site-mark-copy">
-          原版排印与长文阅读，尽在一处。
+          PDF 原文与长文整理，在此并读。
         </p>
       </header>
 

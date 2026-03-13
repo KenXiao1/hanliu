@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Hanliu Online Reader — a Next.js-based web reader for the Chinese periodical "汉留" (Celestial Reserve). It converts source PDFs into a navigable web experience with dual reading modes, Simplified/Traditional Chinese switching, light/dark theme, and Giscus-powered comments.
+Hanliu Online Reader — a Next.js-based web reader for the Chinese periodical "汉留" (Celestial Reserve). It combines embedded PDF reading with blog-style article reading, Simplified/Traditional Chinese switching, light/dark theme, and Giscus-powered comments.
 
 ## Commands
 
@@ -46,7 +46,7 @@ Two parallel route trees serve the same content:
 
 ### Preferences (`lib/preferences.ts`, `lib/reader-state.ts`, `lib/url.ts`)
 
-All reader settings (theme, script, mode, fontScale, pageZoom) live in **URL search params**, not cookies or client state. `PreferenceSync` (client component) applies them to the DOM and persists to `localStorage`. `ReaderToolbar` uses `router.replace()` to update params.
+All reader settings (theme, script, fontScale) live in **URL search params**, not cookies or client state. `PreferenceSync` (client component) applies them to the DOM and persists to `localStorage`.
 
 ### Components (`components/site/`)
 

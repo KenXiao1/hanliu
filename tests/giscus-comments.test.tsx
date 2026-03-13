@@ -25,9 +25,7 @@ vi.mock("next/navigation", () => ({
 const lightPreferences: ReaderPreferences = {
   theme: "light",
   script: "zh-Hans",
-  mode: "article",
-  fontScale: 1,
-  pageZoom: 1
+  fontScale: 1
 };
 
 describe("GiscusComments", () => {

@@ -26,9 +26,7 @@ vi.mock("next/link", () => ({
 const preferences: ReaderPreferences = {
   theme: "light",
   script: "zh-Hans",
-  mode: "article",
-  fontScale: 1,
-  pageZoom: 1
+  fontScale: 1
 };
 
 describe("PdfView", () => {

@@ -11,7 +11,7 @@ import {
 
 import { usePathname } from "next/navigation";
 
-import { buildReaderHref, clampFontScale, clampPageZoom } from "@/lib/reader-state";
+import { buildReaderHref, clampFontScale } from "@/lib/reader-state";
 import type { ReaderPreferences } from "@/lib/preferences";
 
 type PreferenceContextValue = {
@@ -22,9 +22,7 @@ type PreferenceContextValue = {
 const defaultPreferences: ReaderPreferences = {
   theme: "light",
   script: "zh-Hans",
-  mode: "article",
-  fontScale: 1,
-  pageZoom: 1
+  fontScale: 1
 };
 
 const PreferenceContext = createContext<PreferenceContextValue | null>(null);
@@ -137,9 +135,7 @@ function normalizePreferences(
   return {
     theme: next.theme === "dark" ? "dark" : "light",
     script: next.script === "zh-Hant" ? "zh-Hant" : "zh-Hans",
-    mode: next.mode === "layout" ? "layout" : "article",
-    fontScale: clampFontScale(next.fontScale),
-    pageZoom: clampPageZoom(next.pageZoom)
+    fontScale: clampFontScale(next.fontScale)
   };
 }
 
@@ -147,7 +143,6 @@ function syncPreferenceEffects(preferences: ReaderPreferences) {
   document.documentElement.dataset.theme = preferences.theme;
   document.documentElement.dataset.script = preferences.script;
   document.documentElement.style.setProperty("--reader-font-scale", String(preferences.fontScale));
-  document.documentElement.style.setProperty("--reader-page-zoom", String(preferences.pageZoom));
   window.localStorage.setItem("hanliu-preferences", JSON.stringify(preferences));
 }
 
@@ -155,8 +150,6 @@ function toSearchPatch(preferences: ReaderPreferences) {
   return {
     theme: preferences.theme,
     script: preferences.script,
-    mode: preferences.mode,
-    fontScale: String(preferences.fontScale),
-    pageZoom: String(preferences.pageZoom)
+    fontScale: String(preferences.fontScale)
   };
 }
