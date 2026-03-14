@@ -176,6 +176,17 @@ describe("buildArticlePageLayout", () => {
     }
   });
 
+  it("merges same-line OCR splits when the second block starts with an inline footnote marker", () => {
+    const article = issueManifest.articles.find((entry) => entry.slug === "page-008");
+    const layout = buildArticlePageLayout(getIssuePage(9), {
+      hiddenTitles: article?.sections.filter((section) => section.page === 9).map((section) => section.titleHans) ?? []
+    });
+
+    expect(layout.bodyBlocks.some((block) => block.text === "的《五经》，")).toBe(false);
+    expect(layout.bodyBlocks.some((block) => block.text.startsWith("3竟然延续到往后的郡县制的中国"))).toBe(false);
+    expect(layout.bodyBlocks.some((block) => block.text.includes("的《五经》，3竟然延续到往后的郡县制的中国"))).toBe(true);
+  });
+
   it("does not leave footnote-marker-only body blocks anywhere in issue-01 articles", () => {
     for (const [script, pages] of Object.entries({
       "zh-Hans": pagesHans,
@@ -196,6 +207,50 @@ describe("buildArticlePageLayout", () => {
 
           expect(
             layout.bodyBlocks.filter((block) => footnoteMarkers.has(block.text.trim())).map((block) => block.text),
+            `${script} page ${page.pageNumber}`
+          ).toEqual([]);
+        }
+      }
+    }
+  });
+
+  it("does not leave same-line inline footnote splits as separate body blocks anywhere in issue-01 articles", () => {
+    for (const [script, pages] of Object.entries({
+      "zh-Hans": pagesHans,
+      "zh-Hant": pagesHant
+    }) as Array<["zh-Hans" | "zh-Hant", PageData[]]>) {
+      for (const article of issueManifest.articles) {
+        for (const page of pages.filter((entry) => entry.pageNumber >= article.startPage && entry.pageNumber <= article.endPage)) {
+          const layout = buildArticlePageLayout(page, {
+            isArticleStartPage: page.pageNumber === article.startPage,
+            hiddenTitles: [
+              page.pageNumber === article.startPage ? (script === "zh-Hans" ? article.titleHans : article.titleHant) : "",
+              ...article.sections
+                .filter((section) => section.page === page.pageNumber)
+                .map((section) => (script === "zh-Hans" ? section.titleHans : section.titleHant))
+            ].filter(Boolean)
+          });
+          const footnoteMarkers = new Set(layout.footnotes.map((footnote) => footnote.marker).filter((marker): marker is string => Boolean(marker)));
+          const sortedBlocks = [...page.textBlocks].sort((left, right) => (left.y === right.y ? left.x - right.x : left.y - right.y));
+          const inlineSplitBlocks = sortedBlocks
+            .slice(1)
+            .filter((block, index) => {
+              const previousBlock = sortedBlocks[index];
+              const text = block.text.trim();
+              const bottom = block.y + block.height;
+              const sameLine = Math.abs(previousBlock.y - block.y) <= Math.max(previousBlock.height, block.height) * 0.8;
+              const markerMatch = text.match(/^(\d+)[\u3400-\u9FFF「『（《〈【]/u);
+
+              if (!sameLine || !markerMatch || bottom >= page.viewport.height * 0.76) {
+                return false;
+              }
+
+              return footnoteMarkers.has(markerMatch[1]);
+            })
+            .map((block) => block.text.trim());
+
+          expect(
+            layout.bodyBlocks.filter((block) => inlineSplitBlocks.includes(block.text.trim())).map((block) => block.text),
             `${script} page ${page.pageNumber}`
           ).toEqual([]);
         }

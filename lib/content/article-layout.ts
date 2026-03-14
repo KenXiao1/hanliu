@@ -245,6 +245,20 @@ function normalizeBodyBlocks(blocks: Array<TextBlock & { text: string }>, footno
       pendingTrailingMarker = undefined;
     }
 
+    if (previousBlock && shouldMergeInlineSegments(previousBlock, block)) {
+      previousBlock.text = `${previousBlock.text}${block.text}`;
+      previousBlock.x = block.x;
+      previousBlock.y = block.y;
+      previousBlock.width = block.width;
+      previousBlock.height = block.height;
+
+      if (trailingMarker) {
+        previousBlock.trailingMarker = trailingMarker;
+      }
+
+      continue;
+    }
+
     if (previousBlock && shouldMergeWrappedLine(previousBlock, block)) {
       previousBlock.text = mergeWrappedText(previousBlock.text, block.text);
       previousBlock.x = block.x;
@@ -337,6 +351,20 @@ function shouldMergeWrappedLine(
   }
 
   return verticalGap > 0 && verticalGap <= Math.max(previousBlock.height, currentBlock.height) * 1.8;
+}
+
+function shouldMergeInlineSegments(
+  previousBlock: { x: number; y: number; width: number; height: number },
+  currentBlock: TextBlock
+) {
+  if (!isSameLine(previousBlock, currentBlock)) {
+    return false;
+  }
+
+  const previousRight = previousBlock.x + previousBlock.width;
+  const maxGap = Math.max(previousBlock.height, currentBlock.height) * 1.5;
+
+  return currentBlock.x >= previousRight - 2 && currentBlock.x - previousRight <= maxGap;
 }
 
 function mergeWrappedText(left: string, right: string) {
