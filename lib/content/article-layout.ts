@@ -251,11 +251,13 @@ function normalizeBodyBlocks(
     }
 
     if (previousBlock && shouldMergeInlineSegments(previousBlock, block)) {
+      const mergedRightEdge = Math.max(previousBlock.x + previousBlock.width, block.x + block.width);
+
       previousBlock.text = `${previousBlock.text}${block.text}`;
-      previousBlock.x = block.x;
-      previousBlock.y = block.y;
-      previousBlock.width = block.width;
-      previousBlock.height = block.height;
+      previousBlock.x = Math.min(previousBlock.x, block.x);
+      previousBlock.y = Math.min(previousBlock.y, block.y);
+      previousBlock.width = mergedRightEdge - previousBlock.x;
+      previousBlock.height = Math.max(previousBlock.height, block.height);
 
       if (trailingMarker) {
         previousBlock.trailingMarker = trailingMarker;

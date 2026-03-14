@@ -991,8 +991,10 @@ describe("ArticleView", () => {
     const combinedText = bodyParagraphs.map((node) => node.textContent ?? "").join("");
 
     expect(combinedHtml).toContain("《青年文摘》四大名著<sup>2</sup>，并常常指着书说");
+    expect(combinedText).toContain("日本人最文明、德国人最严谨。你们得下苦功学好英语，才能走出去和外国人交朋友，长见识。");
     expect(combinedText).not.toContain("《青年文2，并");
     expect(combinedText).not.toContain("摘》四大名著明、德国人最严谨");
+    expect(bodyParagraphs.some((node) => (node.textContent ?? "").startsWith("明、德国人最严谨"))).toBe(false);
   });
 
   it("renders OCR footnote markers as inline superscripts instead of body text", () => {
