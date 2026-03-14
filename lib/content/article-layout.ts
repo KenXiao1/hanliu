@@ -352,8 +352,9 @@ function shouldMergeWrappedLine(
 ) {
   const verticalGap = currentBlock.y - previousBlock.y;
   const alignedToSameColumn = Math.abs(previousBlock.x - currentBlock.x) <= 2;
+  const indentedWrappedContinuation = isIndentedWrappedContinuation(previousBlock, currentBlock);
 
-  if (!alignedToSameColumn) {
+  if (!alignedToSameColumn && !indentedWrappedContinuation) {
     return false;
   }
 
@@ -362,6 +363,16 @@ function shouldMergeWrappedLine(
   }
 
   return verticalGap > 0 && verticalGap <= Math.max(previousBlock.height, currentBlock.height) * 1.8;
+}
+
+function isIndentedWrappedContinuation(
+  previousBlock: { x: number; height: number },
+  currentBlock: TextBlock
+) {
+  const maxLineHeight = Math.max(previousBlock.height, currentBlock.height);
+  const indentOffset = previousBlock.x - currentBlock.x;
+
+  return indentOffset >= maxLineHeight * 0.6 && indentOffset <= maxLineHeight * 2.2;
 }
 
 function shouldMergeInlineSegments(

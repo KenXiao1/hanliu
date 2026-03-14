@@ -599,6 +599,10 @@ html[data-preference-shift="on"] .issue-content {
   color: var(--text);
 }
 
+.standalone-story-paragraph {
+  text-indent: 2em;
+}
+
 .standalone-story-list {
   margin: 0;
   padding-left: 1.4rem;
@@ -649,6 +653,7 @@ html[data-preference-shift="on"] .issue-content {
   font-size: calc(1.08rem * var(--article-font-scale));
   color: var(--text);
   line-height: 1.9;
+  text-indent: 2em;
 }
 
 .article-footnotes {

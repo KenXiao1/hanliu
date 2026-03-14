@@ -187,6 +187,24 @@ describe("buildArticlePageLayout", () => {
     expect(layout.bodyBlocks.some((block) => block.text.includes("的《五经》，3竟然延续到往后的郡县制的中国"))).toBe(true);
   });
 
+  it("merges first-line-indented wrapped paragraphs on page 133", () => {
+    const article = issueManifest.articles.find((entry) => entry.slug === "page-133");
+    const layout = buildArticlePageLayout(getIssuePage(133), {
+      isArticleStartPage: true,
+      hiddenTitles: article ? [article.titleHans] : []
+    });
+
+    expect(layout.bodyBlocks.some((block) => block.text === "我是一个零零后女生，自认为初二时产生「汉民族意识」雏形，后")).toBe(false);
+    expect(layout.bodyBlocks.some((block) => block.text === "渴望学晚宋史不成，本科与文史毫不相干，两次考研失败，无从得到专业训练，现又失业在家。")).toBe(false);
+    expect(layout.bodyBlocks.some((block) => block.text === "回看这十一年，我从「好奇」「为什么」出发追问「历史的真相」，")).toBe(false);
+    expect(layout.bodyBlocks.some((block) => block.text === "我是一个零零后女生，自认为初二时产生「汉民族意识」雏形，后渴望学晚宋史不成，本科与文史毫不相干，两次考研失败，无从得到专业训练，现又失业在家。")).toBe(true);
+    expect(
+      layout.bodyBlocks.some(
+        (block) => block.text === "回看这十一年，我从「好奇」「为什么」出发追问「历史的真相」，因信任破灭而产生一种巨大的「被欺骗」的愤怒，又因努力不够、能力欠缺与脾性执拗，落到如今这番田地。可我想将我经历的、看到的、思考的事情，分享出来。"
+      )
+    ).toBe(true);
+  });
+
   it("does not leave footnote-marker-only body blocks anywhere in issue-01 articles", () => {
     for (const [script, pages] of Object.entries({
       "zh-Hans": pagesHans,
@@ -257,6 +275,46 @@ describe("buildArticlePageLayout", () => {
       }
     }
   });
+
+  it("does not leave first-line-indented wrapped lines as separate body blocks anywhere in issue-01 articles", () => {
+    for (const [script, pages] of Object.entries({
+      "zh-Hans": pagesHans,
+      "zh-Hant": pagesHant
+    }) as Array<["zh-Hans" | "zh-Hant", PageData[]]>) {
+      for (const article of issueManifest.articles) {
+        for (const page of pages.filter((entry) => entry.pageNumber >= article.startPage && entry.pageNumber <= article.endPage)) {
+          const hiddenTitles = [
+            page.pageNumber === article.startPage ? (script === "zh-Hans" ? article.titleHans : article.titleHant) : "",
+            ...article.sections
+              .filter((section) => section.page === page.pageNumber)
+              .map((section) => (script === "zh-Hans" ? section.titleHans : section.titleHant))
+          ].filter(Boolean);
+          const layout = buildArticlePageLayout(page, {
+            isArticleStartPage: page.pageNumber === article.startPage,
+            hiddenTitles
+          });
+          const candidates = collectIndentedWrapCandidates(page, hiddenTitles);
+
+          for (const candidate of candidates) {
+            const expectedMergedText = mergeCandidateText(candidate.previousText, candidate.currentText);
+
+            expect(
+              layout.bodyBlocks.some((block) => block.text.includes(expectedMergedText)),
+              `${script} page ${page.pageNumber}: ${candidate.previousText} + ${candidate.currentText}`
+            ).toBe(true);
+            expect(
+              layout.bodyBlocks.some((block) => block.text === candidate.previousText),
+              `${script} page ${page.pageNumber}: previous block remained separate`
+            ).toBe(false);
+            expect(
+              layout.bodyBlocks.some((block) => block.text === candidate.currentText),
+              `${script} page ${page.pageNumber}: current block remained separate`
+            ).toBe(false);
+          }
+        }
+      }
+    }
+  });
 });
 
 function getIssuePage(pageNumber: number): PageData {
@@ -267,4 +325,86 @@ function getIssuePage(pageNumber: number): PageData {
   }
 
   return page;
+}
+
+function collectIndentedWrapCandidates(page: PageData, hiddenTitles: string[]) {
+  const hiddenTitleSet = new Set(hiddenTitles.map((title) => normalizeComparableText(title)));
+  const sortedBlocks = [...page.textBlocks]
+    .sort((left, right) => (left.y === right.y ? left.x - right.x : left.y - right.y))
+    .filter((block) => {
+      const text = block.text.trim();
+
+      if (!text || isPdfPageNumber(block, page) || isFootnoteBlock(block, page)) {
+        return false;
+      }
+
+      return !(hiddenTitleSet.has(normalizeComparableText(text)) && isHeadingBlock(block, page));
+    });
+  const candidates: Array<{ previousText: string; currentText: string }> = [];
+
+  for (let index = 1; index < sortedBlocks.length; index += 1) {
+    const previousBlock = sortedBlocks[index - 1];
+    const currentBlock = sortedBlocks[index];
+    const verticalGap = currentBlock.y - previousBlock.y;
+    const maxLineHeight = Math.max(previousBlock.height, currentBlock.height);
+    const indentOffset = previousBlock.x - currentBlock.x;
+
+    if (verticalGap <= 0 || verticalGap > maxLineHeight * 1.8) {
+      continue;
+    }
+
+    if (indentOffset < maxLineHeight * 0.6 || indentOffset > maxLineHeight * 2.2) {
+      continue;
+    }
+
+    if (/[。！？；:：”」』）》】]$/.test(previousBlock.text.trim())) {
+      continue;
+    }
+
+    if (!isProseBlock(previousBlock.text) || !isProseBlock(currentBlock.text)) {
+      continue;
+    }
+
+    candidates.push({
+      previousText: previousBlock.text.trim(),
+      currentText: currentBlock.text.trim()
+    });
+  }
+
+  return candidates;
+}
+
+function isPdfPageNumber(block: PageData["textBlocks"][number], page: PageData) {
+  const text = block.text.trim();
+
+  return /^\d+$/.test(text) && block.y >= page.viewport.height * 0.88 && block.x >= page.viewport.width * 0.35 && block.x <= page.viewport.width * 0.65;
+}
+
+function isFootnoteBlock(block: PageData["textBlocks"][number], page: PageData) {
+  const text = block.text.trim();
+  const bottom = block.y + block.height;
+
+  return /^\d+\s/.test(text) && block.y >= page.viewport.height * 0.6 && bottom >= page.viewport.height * 0.76;
+}
+
+function isHeadingBlock(block: PageData["textBlocks"][number], page: PageData) {
+  return block.height >= page.viewport.height * 0.028 && block.x <= page.viewport.width * 0.22;
+}
+
+function normalizeComparableText(text: string) {
+  return text.trim().replace(/\d+$/, "").trim();
+}
+
+function isProseBlock(text: string) {
+  const trimmed = text.trim();
+
+  return /[\u3400-\u9FFF]/u.test(trimmed) && !/^https?:\/\//.test(trimmed) && !/^[•·]/.test(trimmed) && !/^[-—]/.test(trimmed);
+}
+
+function mergeCandidateText(left: string, right: string) {
+  if (/[A-Za-z0-9]$/.test(left) && /^[A-Za-z0-9]/.test(right)) {
+    return `${left} ${right}`;
+  }
+
+  return `${left}${right}`;
 }
