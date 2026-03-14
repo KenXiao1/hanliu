@@ -96,7 +96,10 @@ export function ArticleView({
                             {renderBodyBlock(
                               block.text,
                               block.trailingMarker,
-                              pageLayout.footnotes.map((footnote) => footnote.marker).filter((marker): marker is string => Boolean(marker))
+                              mergeMarkerLists(
+                                pageLayout.footnotes.map((footnote) => footnote.marker).filter((marker): marker is string => Boolean(marker)),
+                                block.inlineFootnoteMarkers ?? []
+                              )
                             )}
                           </p>
                         ))}
@@ -171,7 +174,7 @@ function renderInlineFootnoteMarkers(text: string, footnoteMarkers: string[]) {
     return text;
   }
 
-  const markerPatternRegex = new RegExp(`(^|[。；，、：「」『』》）])(${markerPattern})(?=[\\u3400-\\u9FFF「『（《〈【])`, "gu");
+  const markerPatternRegex = new RegExp(`(^|[^\\d])(${markerPattern})(?=[，,。；、:：\\u3400-\\u9FFF「『（《〈【])`, "gu");
   const nodes: ReactNode[] = [];
   let lastIndex = 0;
 
@@ -254,6 +257,10 @@ function mergeCrossPageBodyContinuations(
 
     previousLastBlock.text = mergeContinuedText(previousLastBlock.text, currentFirstBlock.text);
     previousLastBlock.trailingMarker = currentFirstBlock.trailingMarker ?? previousLastBlock.trailingMarker;
+    previousLastBlock.inlineFootnoteMarkers = mergeMarkerLists(
+      previousLastBlock.inlineFootnoteMarkers ?? [],
+      currentSection.pageLayout.footnotes.map((footnote) => footnote.marker).filter((marker): marker is string => Boolean(marker))
+    );
     currentSection.pageLayout.bodyBlocks = currentSection.pageLayout.bodyBlocks.slice(1);
     currentSection.pageLayout.bodyBlockYs = currentSection.pageLayout.bodyBlockYs.slice(1);
   }
@@ -398,4 +405,8 @@ function isLikelySectionHeading(
 
 function normalizeComparableText(text: string) {
   return text.trim().replace(/\d+$/, "").trim();
+}
+
+function mergeMarkerLists(left: string[], right: string[]) {
+  return [...new Set([...left, ...right])];
 }

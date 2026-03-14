@@ -13,6 +13,7 @@ export type ArticleFootnote = {
 export type ArticleBodyBlock = {
   text: string;
   trailingMarker?: string;
+  inlineFootnoteMarkers?: string[];
 };
 
 export type ArticlePageLayout = {
@@ -29,13 +30,7 @@ export function buildArticlePageLayout(
     isArticleStartPage?: boolean;
   }
 ): ArticlePageLayout {
-  const blocks = [...page.textBlocks].sort((left, right) => {
-    if (left.y !== right.y) {
-      return left.y - right.y;
-    }
-
-    return left.x - right.x;
-  });
+  const blocks = [...page.textBlocks].sort(compareTextBlocksInReadingOrder);
 
   const hiddenTitles = new Set((options?.hiddenTitles ?? []).map(normalizeComparableText).filter(Boolean));
   const bodyBlocks: Array<TextBlock & { text: string }> = [];
@@ -318,6 +313,14 @@ function getStandaloneFootnoteMarker(block: TextBlock, footnoteMarkers: Set<stri
 
 function isSameLine(left: { y: number; height: number }, right: TextBlock) {
   return Math.abs(left.y - right.y) <= Math.max(left.height, right.height) * 0.8;
+}
+
+function compareTextBlocksInReadingOrder(left: TextBlock, right: TextBlock) {
+  if (isSameLine(left, right)) {
+    return left.x - right.x;
+  }
+
+  return left.y - right.y;
 }
 
 function isDetachedParagraphEndMarker(

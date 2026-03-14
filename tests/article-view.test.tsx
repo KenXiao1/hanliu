@@ -827,6 +827,174 @@ describe("ArticleView", () => {
     );
   });
 
+  it("keeps cross-page inline footnote markers attached to the correct phrase", () => {
+    const footnoteCarryOverView: ArticleViewModel = {
+      ...view,
+      article: {
+        ...view.article,
+        slug: "page-133-footnote",
+        titleHans: "妾身元是分明月",
+        titleHant: "妾身元是分明月",
+        startPage: 134,
+        endPage: 135,
+        sections: []
+      },
+      toc: [],
+      locales: {
+        "zh-Hans": {
+          pages: [
+            {
+              pageId: "issue-01-p134-footnote",
+              locale: "zh-Hans",
+              pageNumber: 134,
+              pageLabel: "134",
+              renderedPageAsset: "/page-134.jpg",
+              viewport: { width: 420, height: 595 },
+              textBlocks: [
+                {
+                  x: 74,
+                  y: 466,
+                  width: 285,
+                  height: 10,
+                  text: "那些年，小学老师勒令我们熟读《意林》《读者》《知音》《青年文"
+                }
+              ],
+              images: []
+            },
+            {
+              pageId: "issue-01-p135-footnote",
+              locale: "zh-Hans",
+              pageNumber: 135,
+              pageLabel: "135",
+              renderedPageAsset: "/page-135.jpg",
+              viewport: { width: 420, height: 595 },
+              textBlocks: [
+                {
+                  x: 54,
+                  y: 76,
+                  width: 60,
+                  height: 10,
+                  text: "摘》四大名著"
+                },
+                {
+                  x: 117,
+                  y: 75,
+                  width: 237,
+                  height: 11,
+                  text: "2，并常常指着书说：「美国人最有创造力、日本人最文"
+                },
+                {
+                  x: 54,
+                  y: 94,
+                  width: 310,
+                  height: 10,
+                  text: "明、德国人最严谨。你们得下苦功学好英语，才能走出去和外国人交朋"
+                },
+                {
+                  x: 54,
+                  y: 112,
+                  width: 68,
+                  height: 10,
+                  text: "友，长见识。」"
+                },
+                {
+                  x: 54,
+                  y: 442,
+                  width: 310,
+                  height: 82,
+                  text: "2 大陆改革开放初期，大量以「虚构的外国真善美、中国假恶丑的故事」为主要内容的杂志创刊。"
+                }
+              ],
+              images: []
+            }
+          ]
+        },
+        "zh-Hant": {
+          pages: [
+            {
+              pageId: "issue-01-p134-footnote-hant",
+              locale: "zh-Hant",
+              pageNumber: 134,
+              pageLabel: "134",
+              renderedPageAsset: "/page-134.jpg",
+              viewport: { width: 420, height: 595 },
+              textBlocks: [
+                {
+                  x: 74,
+                  y: 466,
+                  width: 285,
+                  height: 10,
+                  text: "那些年，小學老師勒令我們熟讀《意林》《讀者》《知音》《青年文"
+                }
+              ],
+              images: []
+            },
+            {
+              pageId: "issue-01-p135-footnote-hant",
+              locale: "zh-Hant",
+              pageNumber: 135,
+              pageLabel: "135",
+              renderedPageAsset: "/page-135.jpg",
+              viewport: { width: 420, height: 595 },
+              textBlocks: [
+                {
+                  x: 54,
+                  y: 76,
+                  width: 60,
+                  height: 10,
+                  text: "摘》四大名著"
+                },
+                {
+                  x: 114,
+                  y: 75,
+                  width: 237,
+                  height: 11,
+                  text: "2，並常常指著書說：「美國人最有創造力、日本人最文"
+                },
+                {
+                  x: 54,
+                  y: 94,
+                  width: 310,
+                  height: 10,
+                  text: "明、德國人最嚴謹。你們得下苦功學好英語，才能走出去和外國人交朋"
+                },
+                {
+                  x: 54,
+                  y: 112,
+                  width: 73,
+                  height: 10,
+                  text: "友，長見識。」"
+                },
+                {
+                  x: 54,
+                  y: 443,
+                  width: 310,
+                  height: 80,
+                  text: "2 大陸改革開放初期，大量以「虛構的外國真善美、中國假惡醜的故事」為主要內容的雜誌創刊。"
+                }
+              ],
+              images: []
+            }
+          ]
+        }
+      }
+    };
+
+    const { container } = render(
+      <PreferenceSync preferences={preferences}>
+        <ArticleView view={footnoteCarryOverView} preferences={preferences} />
+      </PreferenceSync>
+    );
+
+    const bodyParagraphs = Array.from(container.querySelectorAll(".article-blocks p"));
+    const combinedHtml = bodyParagraphs.map((node) => node.innerHTML).join("");
+    const combinedText = bodyParagraphs.map((node) => node.textContent ?? "").join("");
+
+    expect(combinedHtml).toContain("《青年文摘》四大名著<sup>2</sup>，并常常指着书说");
+    expect(combinedText).not.toContain("《青年文2，并");
+    expect(combinedText).not.toContain("摘》四大名著明、德国人最严谨");
+  });
+
   it("renders OCR footnote markers as inline superscripts instead of body text", () => {
     const inlineMarkerView: ArticleViewModel = {
       ...view,

@@ -348,6 +348,16 @@ function collectIndentedWrapCandidates(page: PageData, hiddenTitles: string[]) {
     const verticalGap = currentBlock.y - previousBlock.y;
     const maxLineHeight = Math.max(previousBlock.height, currentBlock.height);
     const indentOffset = previousBlock.x - currentBlock.x;
+    const previousLineRightEdge = previousBlock.x + previousBlock.width;
+    const hasTrailingBlockOnPreviousLine = sortedBlocks.some((candidate) => {
+      if (candidate === previousBlock || candidate === currentBlock) {
+        return false;
+      }
+
+      const sameLineAsPrevious = Math.abs(candidate.y - previousBlock.y) <= Math.max(candidate.height, previousBlock.height) * 0.8;
+
+      return sameLineAsPrevious && candidate.x > previousLineRightEdge - 2;
+    });
 
     if (verticalGap <= 0 || verticalGap > maxLineHeight * 1.8) {
       continue;
@@ -362,6 +372,14 @@ function collectIndentedWrapCandidates(page: PageData, hiddenTitles: string[]) {
     }
 
     if (!isProseBlock(previousBlock.text) || !isProseBlock(currentBlock.text)) {
+      continue;
+    }
+
+    if (previousLineRightEdge < page.viewport.width * 0.72) {
+      continue;
+    }
+
+    if (hasTrailingBlockOnPreviousLine) {
       continue;
     }
 
