@@ -758,4 +758,264 @@ describe("ArticleView", () => {
     expect(bodyParagraphs[2]?.innerHTML ?? "").toBe("<sup>3</sup>竟然延续到往后的郡县制的中国。");
     expect(bodyParagraphs[3]?.innerHTML ?? "").toBe("说要后现代，<sup>4</sup>德国的哈贝马斯继续讨论这个计划。");
   });
+
+  it("attaches standalone OCR footnote-marker blocks to the preceding line across the issue", () => {
+    const detachedMarkerView: ArticleViewModel = {
+      ...view,
+      article: {
+        ...view.article,
+        slug: "page-009",
+        titleHans: "复周：一个未完成的大计划",
+        titleHant: "復周：一個未完成的大計劃",
+        startPage: 9,
+        endPage: 9,
+        sections: []
+      },
+      toc: [],
+      locales: {
+        "zh-Hans": {
+          pages: [
+            {
+              pageId: "issue-01-p009-detached",
+              locale: "zh-Hans",
+              pageNumber: 9,
+              pageLabel: "9",
+              renderedPageAsset: "/page-009.jpg",
+              viewport: { width: 420, height: 595 },
+              textBlocks: [
+                {
+                  x: 54,
+                  y: 133,
+                  width: 314,
+                  height: 27,
+                  text: "统治中国心灵的唯一的封建朝代"
+                },
+                {
+                  x: 54,
+                  y: 386,
+                  width: 305,
+                  height: 12,
+                  text: "讲授的：尧传舜的「允执厥中」，怕大家看不明白，舜传禹的时候，加"
+                },
+                {
+                  x: 355,
+                  y: 405,
+                  width: 5,
+                  height: 11,
+                  text: "4"
+                },
+                {
+                  x: 54,
+                  y: 404,
+                  width: 300,
+                  height: 12,
+                  text: "以讲解为十六个字：「人心惟危，道心惟微，惟精惟一，允执厥中」。"
+                },
+                {
+                  x: 54,
+                  y: 452,
+                  width: 310,
+                  height: 72,
+                  text: "4 朱熹《中庸章句．序》：《中庸》何为而作也？"
+                }
+              ],
+              images: []
+            }
+          ]
+        },
+        "zh-Hant": {
+          pages: [
+            {
+              pageId: "issue-01-p009-detached-hant",
+              locale: "zh-Hant",
+              pageNumber: 9,
+              pageLabel: "9",
+              renderedPageAsset: "/page-009.jpg",
+              viewport: { width: 420, height: 595 },
+              textBlocks: [
+                {
+                  x: 54,
+                  y: 134,
+                  width: 314,
+                  height: 25,
+                  text: "統治中國心靈的唯一的封建朝代"
+                },
+                {
+                  x: 54,
+                  y: 386,
+                  width: 305,
+                  height: 10,
+                  text: "講授的：堯傳舜的「允執厥中」，怕大家看不明白，舜傳禹的時候，加"
+                },
+                {
+                  x: 355,
+                  y: 405,
+                  width: 5,
+                  height: 11,
+                  text: "4"
+                },
+                {
+                  x: 54,
+                  y: 404,
+                  width: 300,
+                  height: 10,
+                  text: "以講解爲十六個字：「人心惟危，道心惟微，惟精惟一，允執厥中」。"
+                },
+                {
+                  x: 54,
+                  y: 452,
+                  width: 310,
+                  height: 66,
+                  text: "4 朱熹《中庸章句．序》：《中庸》何爲而作也？"
+                }
+              ],
+              images: []
+            }
+          ]
+        }
+      }
+    };
+
+    const { container } = render(
+      <PreferenceSync preferences={preferences}>
+        <ArticleView view={detachedMarkerView} preferences={preferences} />
+      </PreferenceSync>
+    );
+
+    const bodyParagraphs = Array.from(container.querySelectorAll(".article-blocks p"));
+
+    expect(bodyParagraphs).toHaveLength(2);
+    expect(bodyParagraphs[1]?.innerHTML ?? "").toContain("以讲解为十六个字：「人心惟危，道心惟微，惟精惟一，允执厥中」。<sup>4</sup>");
+    expect(bodyParagraphs.some((paragraph) => paragraph.textContent?.trim() === "4")).toBe(false);
+  });
+
+  it("attaches OCR footnote markers that are sorted before their target line", () => {
+    const leadingDetachedMarkerView: ArticleViewModel = {
+      ...view,
+      article: {
+        ...view.article,
+        slug: "page-051",
+        titleHans: "皇汉的形成与过去十年",
+        titleHant: "皇漢的形成與過去十年",
+        startPage: 51,
+        endPage: 51,
+        sections: []
+      },
+      toc: [],
+      locales: {
+        "zh-Hans": {
+          pages: [
+            {
+              pageId: "issue-01-p051-leading-marker",
+              locale: "zh-Hans",
+              pageNumber: 51,
+              pageLabel: "51",
+              renderedPageAsset: "/page-051.jpg",
+              viewport: { width: 420, height: 595 },
+              textBlocks: [
+                {
+                  x: 54,
+                  y: 243,
+                  width: 312,
+                  height: 10,
+                  text: "共同的问题高于一切！后来人们心中发生了疑问，于是大家开始分手四"
+                },
+                {
+                  x: 54,
+                  y: 259,
+                  width: 312,
+                  height: 10,
+                  text: "散，回到民族的院落里去：让各人只靠自己吧！「民族问题」高于一切！……"
+                },
+                {
+                  x: 275,
+                  y: 273,
+                  width: 7,
+                  height: 13,
+                  text: "14"
+                },
+                {
+                  x: 54,
+                  y: 274,
+                  width: 220,
+                  height: 10,
+                  text: "解放运动愈趋低落，民族主义的花朵就愈加怒放。"
+                },
+                {
+                  x: 54,
+                  y: 442,
+                  width: 309,
+                  height: 82,
+                  text: "14 《斯大林选集（上卷）》〈马克思主义与民族问题〉（北京：人民出版社，1979 年12 月），页59-60。"
+                }
+              ],
+              images: []
+            }
+          ]
+        },
+        "zh-Hant": {
+          pages: [
+            {
+              pageId: "issue-01-p051-leading-marker-hant",
+              locale: "zh-Hant",
+              pageNumber: 51,
+              pageLabel: "51",
+              renderedPageAsset: "/page-051.jpg",
+              viewport: { width: 420, height: 595 },
+              textBlocks: [
+                {
+                  x: 54,
+                  y: 243,
+                  width: 312,
+                  height: 10,
+                  text: "共同的問題高於一切！後來人們心中發生了疑問，於是大家開始分手四"
+                },
+                {
+                  x: 54,
+                  y: 259,
+                  width: 312,
+                  height: 10,
+                  text: "散，回到民族的院落裏去：讓各人只靠自己吧！「民族問題」高於一切！……"
+                },
+                {
+                  x: 314,
+                  y: 274,
+                  width: 7,
+                  height: 12,
+                  text: "14"
+                },
+                {
+                  x: 54,
+                  y: 275,
+                  width: 260,
+                  height: 10,
+                  text: "解放運動愈趨低落，民族主義的花朵就愈加怒放。"
+                },
+                {
+                  x: 54,
+                  y: 501,
+                  width: 294,
+                  height: 21,
+                  text: "14 《斯大林選集（上卷）》〈馬克思主義與民族問題〉（北京：人民出版社，1979 年12 月），頁59-60。"
+                }
+              ],
+              images: []
+            }
+          ]
+        }
+      }
+    };
+
+    const { container } = render(
+      <PreferenceSync preferences={preferences}>
+        <ArticleView view={leadingDetachedMarkerView} preferences={preferences} />
+      </PreferenceSync>
+    );
+
+    const bodyParagraphs = Array.from(container.querySelectorAll(".article-blocks p"));
+
+    expect(bodyParagraphs).toHaveLength(1);
+    expect(bodyParagraphs[0]?.innerHTML ?? "").toContain("解放运动愈趋低落，民族主义的花朵就愈加怒放。<sup>14</sup>");
+    expect(bodyParagraphs.some((paragraph) => paragraph.textContent?.trim() === "14")).toBe(false);
+  });
 });

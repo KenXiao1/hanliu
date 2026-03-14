@@ -4,6 +4,7 @@ import { buildArticlePageLayout } from "@/lib/content/article-layout";
 import type { PageData } from "@/lib/content/types";
 import issueManifest from "@/data/issues/issue-01/manifest.json";
 import pagesHans from "@/data/issues/issue-01/pages.zh-Hans.json";
+import pagesHant from "@/data/issues/issue-01/pages.zh-Hant.json";
 
 const page029Hans: PageData = {
   pageId: "issue-01-p029",
@@ -172,6 +173,33 @@ describe("buildArticlePageLayout", () => {
       expect(article).toBeTruthy();
       expect(layout.bodyBlocks.some((block) => block.text.includes(article?.titleHans ?? ""))).toBe(false);
       expect(layout.bodyBlocks.some((block) => article?.titleHans.includes(block.text))).toBe(false);
+    }
+  });
+
+  it("does not leave footnote-marker-only body blocks anywhere in issue-01 articles", () => {
+    for (const [script, pages] of Object.entries({
+      "zh-Hans": pagesHans,
+      "zh-Hant": pagesHant
+    }) as Array<["zh-Hans" | "zh-Hant", PageData[]]>) {
+      for (const article of issueManifest.articles) {
+        for (const page of pages.filter((entry) => entry.pageNumber >= article.startPage && entry.pageNumber <= article.endPage)) {
+          const layout = buildArticlePageLayout(page, {
+            isArticleStartPage: page.pageNumber === article.startPage,
+            hiddenTitles: [
+              page.pageNumber === article.startPage ? (script === "zh-Hans" ? article.titleHans : article.titleHant) : "",
+              ...article.sections
+                .filter((section) => section.page === page.pageNumber)
+                .map((section) => (script === "zh-Hans" ? section.titleHans : section.titleHant))
+            ].filter(Boolean)
+          });
+          const footnoteMarkers = new Set(layout.footnotes.map((footnote) => footnote.marker).filter((marker): marker is string => Boolean(marker)));
+
+          expect(
+            layout.bodyBlocks.filter((block) => footnoteMarkers.has(block.text.trim())).map((block) => block.text),
+            `${script} page ${page.pageNumber}`
+          ).toEqual([]);
+        }
+      }
     }
   });
 });
