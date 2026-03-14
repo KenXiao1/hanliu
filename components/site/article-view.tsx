@@ -26,6 +26,7 @@ export function ArticleView({
         page,
         sectionLinks,
         pageLayout: buildArticlePageLayout(page, {
+          isArticleStartPage: page.pageNumber === view.article.startPage,
           hiddenTitles: [
             ...(page.pageNumber === view.article.startPage ? [title] : []),
             ...sectionLinks.map((entry) => (activePreferences.script === "zh-Hant" ? entry.titleHant : entry.titleHans))

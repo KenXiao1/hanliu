@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import { buildArticlePageLayout } from "@/lib/content/article-layout";
 import type { PageData } from "@/lib/content/types";
+import issueManifest from "@/data/issues/issue-01/manifest.json";
+import pagesHans from "@/data/issues/issue-01/pages.zh-Hans.json";
 
 const page029Hans: PageData = {
   pageId: "issue-01-p029",
@@ -84,6 +86,7 @@ const page029Hans: PageData = {
 describe("buildArticlePageLayout", () => {
   it("removes a first-page title block even when it carries a trailing footnote marker", () => {
     const layout = buildArticlePageLayout(page029Hans, {
+      isArticleStartPage: true,
       hiddenTitles: ["皇汉是如何出现的"]
     });
 
@@ -96,6 +99,7 @@ describe("buildArticlePageLayout", () => {
 
   it("merges wrapped body lines into paragraphs and splits combined footnotes", () => {
     const layout = buildArticlePageLayout(page029Hans, {
+      isArticleStartPage: true,
       hiddenTitles: ["皇汉是如何出现的"]
     });
 
@@ -119,4 +123,65 @@ describe("buildArticlePageLayout", () => {
       }
     ]);
   });
+
+  it("attaches a standalone byline marker to the extracted page note", () => {
+    const page133Hans = getIssuePage(133);
+
+    const layout = buildArticlePageLayout(page133Hans, {
+      isArticleStartPage: true,
+      hiddenTitles: [issueManifest.articles.find((article) => article.slug === "page-133")?.titleHans ?? ""]
+    });
+
+    expect(layout.pageNote).toEqual({
+      text: "种树未着花",
+      marker: "1"
+    });
+    expect(layout.bodyBlocks.some((block) => block.text === "1")).toBe(false);
+    expect(layout.bodyBlocks.some((block) => block.text === "132")).toBe(false);
+  });
+
+  it("extracts lowered right-aligned bylines on article opening pages across the issue", () => {
+    const samples = [
+      { pageNumber: 230, expected: { text: "卯金刀" } },
+      { pageNumber: 237, expected: { text: "胡又天", marker: "2" } },
+      { pageNumber: 277, expected: { text: "胡又天" } }
+    ];
+
+    for (const sample of samples) {
+      const article = issueManifest.articles.find((entry) => entry.startPage === sample.pageNumber);
+      const page = getIssuePage(sample.pageNumber);
+      const layout = buildArticlePageLayout(page, {
+        isArticleStartPage: true,
+        hiddenTitles: article ? [article.titleHans] : []
+      });
+
+      expect(layout.pageNote).toEqual(sample.expected);
+      expect(layout.bodyBlocks.some((block) => block.text.includes(sample.expected.text))).toBe(false);
+    }
+  });
+
+  it("removes split opening title blocks across issue articles", () => {
+    for (const pageNumber of [230, 277]) {
+      const article = issueManifest.articles.find((entry) => entry.startPage === pageNumber);
+      const page = getIssuePage(pageNumber);
+      const layout = buildArticlePageLayout(page, {
+        isArticleStartPage: true,
+        hiddenTitles: article ? [article.titleHans] : []
+      });
+
+      expect(article).toBeTruthy();
+      expect(layout.bodyBlocks.some((block) => block.text.includes(article?.titleHans ?? ""))).toBe(false);
+      expect(layout.bodyBlocks.some((block) => article?.titleHans.includes(block.text))).toBe(false);
+    }
+  });
 });
+
+function getIssuePage(pageNumber: number): PageData {
+  const page = pagesHans.find((entry) => entry.pageNumber === pageNumber);
+
+  if (!page) {
+    throw new Error(`Missing issue-01 page ${pageNumber}`);
+  }
+
+  return page;
+}

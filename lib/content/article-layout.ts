@@ -25,6 +25,7 @@ export function buildArticlePageLayout(
   page: PageData,
   options?: {
     hiddenTitles?: string[];
+    isArticleStartPage?: boolean;
   }
 ): ArticlePageLayout {
   const blocks = [...page.textBlocks].sort((left, right) => {
@@ -38,17 +39,21 @@ export function buildArticlePageLayout(
   const hiddenTitles = new Set((options?.hiddenTitles ?? []).map(normalizeComparableText).filter(Boolean));
   const bodyBlocks: Array<TextBlock & { text: string }> = [];
   const footnotes: ArticleFootnote[] = [];
-  let pageNote: ArticleInlineNote | undefined;
+  const extractedPageNote = options?.isArticleStartPage ? extractStartPageNote(blocks, page) : undefined;
+  const extractedTitleBlockIndexes = options?.isArticleStartPage
+    ? extractStartPageTitleBlockIndexes(blocks, page, options?.hiddenTitles?.[0])
+    : [];
+  const skippedBlockIndexes = new Set([...(extractedPageNote?.blockIndexes ?? []), ...extractedTitleBlockIndexes]);
+  let pageNote: ArticleInlineNote | undefined = extractedPageNote?.note;
 
-  for (const block of blocks) {
-    const text = block.text.trim();
-
-    if (!text || isPdfPageNumber(block, page)) {
+  for (const [index, block] of blocks.entries()) {
+    if (skippedBlockIndexes.has(index)) {
       continue;
     }
 
-    if (!pageNote && isTopRightPageNote(block, page)) {
-      pageNote = splitTrailingMarker(text);
+    const text = block.text.trim();
+
+    if (!text || isPdfPageNumber(block, page)) {
       continue;
     }
 
@@ -71,6 +76,72 @@ export function buildArticlePageLayout(
   };
 }
 
+function extractStartPageNote(blocks: TextBlock[], page: PageData) {
+  const candidates = blocks
+    .map((block, index) => ({ block, index }))
+    .filter(({ block }) => isTopRightPageNote(block, page));
+
+  for (const candidate of candidates) {
+    const lineGroup = candidates
+      .filter(({ block }) => isSameLine(candidate.block, block))
+      .sort((left, right) => left.block.x - right.block.x);
+    const textBlocks = lineGroup.filter(({ block }) => !/^\d+$/.test(block.text.trim()));
+    const markerBlocks = lineGroup.filter(({ block }) => /^\d+$/.test(block.text.trim()));
+
+    if (textBlocks.length === 0) {
+      continue;
+    }
+
+    const mergedText = textBlocks.map(({ block }) => block.text.trim()).join("");
+    const splitNote = splitTrailingMarker(mergedText);
+    const marker = splitNote.marker ?? markerBlocks[0]?.block.text.trim();
+
+    return {
+      note: {
+        text: splitNote.text,
+        marker
+      },
+      blockIndexes: lineGroup.map(({ index }) => index)
+    };
+  }
+
+  return undefined;
+}
+
+function extractStartPageTitleBlockIndexes(blocks: TextBlock[], page: PageData, title: string | undefined) {
+  const normalizedTitle = normalizeComparableText(title ?? "");
+
+  if (!normalizedTitle) {
+    return [];
+  }
+
+  const candidates = blocks
+    .map((block, index) => ({ block, index }))
+    .filter(({ block }) => block.y <= page.viewport.height * 0.4 && block.x <= page.viewport.width * 0.2 && isHeadingBlock(block, page));
+
+  for (let startIndex = 0; startIndex < candidates.length; startIndex += 1) {
+    let combinedTitle = "";
+    const blockIndexes: number[] = [];
+
+    for (let endIndex = startIndex; endIndex < candidates.length; endIndex += 1) {
+      const candidate = candidates[endIndex];
+
+      combinedTitle += normalizeComparableText(candidate.block.text);
+      blockIndexes.push(candidate.index);
+
+      if (combinedTitle === normalizedTitle) {
+        return blockIndexes;
+      }
+
+      if (!normalizedTitle.startsWith(combinedTitle)) {
+        break;
+      }
+    }
+  }
+
+  return [];
+}
+
 function isPdfPageNumber(block: TextBlock, page: PageData) {
   const text = block.text.trim();
 
@@ -87,7 +158,7 @@ function isFootnoteBlock(block: TextBlock, page: PageData) {
 function isTopRightPageNote(block: TextBlock, page: PageData) {
   const text = block.text.trim();
 
-  return block.y <= page.viewport.height * 0.32 && block.x >= page.viewport.width * 0.68 && text.length <= 24;
+  return block.y <= page.viewport.height * 0.42 && block.x >= page.viewport.width * 0.68 && text.length <= 24;
 }
 
 function isHeadingBlock(block: TextBlock, page: PageData) {
