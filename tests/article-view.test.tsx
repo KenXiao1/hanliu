@@ -997,6 +997,165 @@ describe("ArticleView", () => {
     expect(bodyParagraphs.some((node) => (node.textContent ?? "").startsWith("明、德国人最严谨"))).toBe(false);
   });
 
+  it("keeps split footnote continuations out of body text and preserves later markers", () => {
+    const splitFootnoteView: ArticleViewModel = {
+      ...view,
+      article: {
+        ...view.article,
+        slug: "page-136-footnote",
+        titleHans: "妾身元是分明月",
+        titleHant: "妾身元是分明月",
+        startPage: 136,
+        endPage: 137,
+        sections: []
+      },
+      toc: [],
+      locales: {
+        "zh-Hans": {
+          pages: [
+            {
+              pageId: "issue-01-p136-footnote",
+              locale: "zh-Hans",
+              pageNumber: 136,
+              pageLabel: "136",
+              renderedPageAsset: "/page-136.jpg",
+              viewport: { width: 420, height: 595 },
+              textBlocks: [
+                {
+                  x: 74,
+                  y: 466,
+                  width: 225,
+                  height: 10,
+                  text: "我仍记得那时我最喜欢《笑傲江"
+                },
+                {
+                  x: 54,
+                  y: 500,
+                  width: 310,
+                  height: 24,
+                  text: "5 参见当年明月《明朝那些事儿．第一部．洪武大帝》（杭州：浙江人民出版"
+                }
+              ],
+              images: []
+            },
+            {
+              pageId: "issue-01-p137-footnote",
+              locale: "zh-Hans",
+              pageNumber: 137,
+              pageLabel: "137",
+              renderedPageAsset: "/page-137.jpg",
+              viewport: { width: 420, height: 595 },
+              textBlocks: [
+                {
+                  x: 54,
+                  y: 76,
+                  width: 225,
+                  height: 10,
+                  text: "湖》，我现在拒绝去回想「为什么最喜欢」。"
+                },
+                {
+                  x: 74,
+                  y: 130,
+                  width: 290,
+                  height: 10,
+                  text: "需要注意，查大作家分不清「吕将军在守襄阳」6是哪个「吕将军」在守襄阳。"
+                },
+                {
+                  x: 54,
+                  y: 486,
+                  width: 310,
+                  height: 38,
+                  text: "社，2012），第84-91页。6 汪元量《醉歌．其一》：吕将军在守襄阳，十载襄阳铁脊梁。"
+                }
+              ],
+              images: []
+            }
+          ]
+        },
+        "zh-Hant": {
+          pages: [
+            {
+              pageId: "issue-01-p136-footnote-hant",
+              locale: "zh-Hant",
+              pageNumber: 136,
+              pageLabel: "136",
+              renderedPageAsset: "/page-136.jpg",
+              viewport: { width: 420, height: 595 },
+              textBlocks: [
+                {
+                  x: 74,
+                  y: 466,
+                  width: 225,
+                  height: 10,
+                  text: "我仍記得那時我最喜歡《笑傲江"
+                },
+                {
+                  x: 54,
+                  y: 500,
+                  width: 310,
+                  height: 24,
+                  text: "5 參見當年明月《明朝那些事兒．第一部．洪武大帝》（杭州：浙江人民出版"
+                }
+              ],
+              images: []
+            },
+            {
+              pageId: "issue-01-p137-footnote-hant",
+              locale: "zh-Hant",
+              pageNumber: 137,
+              pageLabel: "137",
+              renderedPageAsset: "/page-137.jpg",
+              viewport: { width: 420, height: 595 },
+              textBlocks: [
+                {
+                  x: 54,
+                  y: 76,
+                  width: 225,
+                  height: 10,
+                  text: "湖》，我現在拒絕去回想「為什麼最喜歡」。"
+                },
+                {
+                  x: 74,
+                  y: 130,
+                  width: 290,
+                  height: 10,
+                  text: "需要注意，查大作家分不清「呂將軍在守襄陽」6是哪個「呂將軍」在守襄陽。"
+                },
+                {
+                  x: 54,
+                  y: 486,
+                  width: 310,
+                  height: 38,
+                  text: "社，2012），第84-91頁。6 汪元量《醉歌．其一》：呂將軍在守襄陽，十載襄陽鐵脊梁。"
+                }
+              ],
+              images: []
+            }
+          ]
+        }
+      }
+    };
+
+    const { container } = render(
+      <PreferenceSync preferences={preferences}>
+        <ArticleView view={splitFootnoteView} preferences={preferences} />
+      </PreferenceSync>
+    );
+
+    const bodyParagraphs = Array.from(container.querySelectorAll(".article-blocks p"));
+    const combinedHtml = bodyParagraphs.map((node) => node.innerHTML).join("");
+    const combinedText = bodyParagraphs.map((node) => node.textContent ?? "").join("");
+    const footnoteText = Array.from(container.querySelectorAll(".article-footnotes"))
+      .map((node) => node.textContent ?? "")
+      .join("");
+
+    expect(combinedText).toContain("我仍记得那时我最喜欢《笑傲江湖》，我现在拒绝去回想「为什么最喜欢」。");
+    expect(combinedHtml).toContain("「吕将军在守襄阳」<sup>6</sup>是哪个");
+    expect(combinedText).not.toContain("社，2012），第84-91页。6 汪元量");
+    expect(footnoteText).toContain("5参见当年明月《明朝那些事儿．第一部．洪武大帝》（杭州：浙江人民出版社，2012），第84-91页。");
+    expect(footnoteText).toContain("6汪元量《醉歌．其一》：吕将军在守襄阳，十载襄阳铁脊梁。");
+  });
+
   it("renders OCR footnote markers as inline superscripts instead of body text", () => {
     const inlineMarkerView: ArticleViewModel = {
       ...view,

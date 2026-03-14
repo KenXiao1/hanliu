@@ -53,6 +53,19 @@ export function buildArticlePageLayout(
       continue;
     }
 
+    if (isFootnoteRegionBlock(block, page)) {
+      const extractedFootnotes = extractFootnoteEntries(text);
+
+      if (extractedFootnotes) {
+        if (extractedFootnotes.leadingText) {
+          footnotes.push({ text: extractedFootnotes.leadingText });
+        }
+
+        footnotes.push(...extractedFootnotes.footnotes);
+        continue;
+      }
+    }
+
     if (isFootnoteBlock(block, page)) {
       footnotes.push(...splitFootnoteEntries(text));
       continue;
@@ -152,9 +165,14 @@ function isPdfPageNumber(block: TextBlock, page: PageData) {
 
 function isFootnoteBlock(block: TextBlock, page: PageData) {
   const text = block.text.trim();
+
+  return /^\d{1,2}\s/.test(text) && isFootnoteRegionBlock(block, page);
+}
+
+function isFootnoteRegionBlock(block: TextBlock, page: PageData) {
   const bottom = block.y + block.height;
 
-  return /^\d+\s/.test(text) && block.y >= page.viewport.height * 0.6 && bottom >= page.viewport.height * 0.76;
+  return block.y >= page.viewport.height * 0.6 && bottom >= page.viewport.height * 0.76;
 }
 
 function isTopRightPageNote(block: TextBlock, page: PageData) {
@@ -181,7 +199,17 @@ function splitTrailingMarker(text: string): ArticleInlineNote {
 }
 
 function splitFootnoteEntries(text: string): ArticleFootnote[] {
-  const matches = Array.from(text.matchAll(/(\d+)\s+/g))
+  const extraction = extractFootnoteEntries(text);
+
+  if (!extraction) {
+    return [{ text }];
+  }
+
+  return extraction.footnotes;
+}
+
+function extractFootnoteEntries(text: string) {
+  const matches = Array.from(text.matchAll(/(\d{1,2})\s+/g))
     .map((match) => ({
       index: match.index ?? 0,
       marker: match[1],
@@ -190,10 +218,10 @@ function splitFootnoteEntries(text: string): ArticleFootnote[] {
     .filter((match) => match.index === 0 || /[。！？；:：」》）】]\s*$/.test(text.slice(0, match.index)));
 
   if (!matches.length) {
-    return [{ text }];
+    return undefined;
   }
 
-  return matches
+  const footnotes = matches
     .map((match, index) => {
       const nextMatch = matches[index + 1];
       const footnoteText = text.slice(match.contentStart, nextMatch?.index ?? text.length).trim();
@@ -204,6 +232,17 @@ function splitFootnoteEntries(text: string): ArticleFootnote[] {
       };
     })
     .filter((footnote) => footnote.text);
+
+  if (!footnotes.length) {
+    return undefined;
+  }
+
+  const leadingText = text.slice(0, matches[0]?.index ?? 0).trim();
+
+  return {
+    leadingText: leadingText || undefined,
+    footnotes
+  };
 }
 
 function normalizeBodyBlocks(

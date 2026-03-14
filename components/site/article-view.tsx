@@ -240,6 +240,8 @@ function mergeCrossPageBodyContinuations(
   for (let index = 1; index < mergedSections.length; index += 1) {
     const previousSection = mergedSections[index - 1];
     const currentSection = mergedSections[index];
+    mergeLeadingFootnoteContinuation(previousSection.pageLayout.footnotes, currentSection.pageLayout.footnotes);
+
     const previousLastBlock = previousSection.pageLayout.bodyBlocks.at(-1);
     const currentFirstBlock = currentSection.pageLayout.bodyBlocks[0];
     const currentFirstBlockY = currentSection.pageLayout.bodyBlockYs[0];
@@ -266,6 +268,19 @@ function mergeCrossPageBodyContinuations(
   }
 
   return mergedSections;
+}
+
+function mergeLeadingFootnoteContinuation(previousFootnotes: Array<{ text: string; marker?: string }>, currentFootnotes: Array<{ text: string; marker?: string }>) {
+  const previousLastFootnote = previousFootnotes.at(-1);
+
+  if (!previousLastFootnote) {
+    return;
+  }
+
+  while (currentFootnotes[0] && !currentFootnotes[0].marker) {
+    previousLastFootnote.text = mergeContinuedText(previousLastFootnote.text, currentFootnotes[0].text);
+    currentFootnotes.shift();
+  }
 }
 
 function mergeContinuedText(left: string, right: string) {
