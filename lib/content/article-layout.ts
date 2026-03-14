@@ -18,6 +18,7 @@ export type ArticleBodyBlock = {
 export type ArticlePageLayout = {
   pageNote?: ArticleInlineNote;
   bodyBlocks: ArticleBodyBlock[];
+  bodyBlockYs: number[];
   footnotes: ArticleFootnote[];
 };
 
@@ -69,9 +70,15 @@ export function buildArticlePageLayout(
     bodyBlocks.push({ ...block, text });
   }
 
+  const normalizedBodyBlocks = normalizeBodyBlocks(bodyBlocks, footnotes);
+
   return {
     pageNote,
-    bodyBlocks: normalizeBodyBlocks(bodyBlocks, footnotes),
+    bodyBlocks: normalizedBodyBlocks.map(({ text, trailingMarker }) => ({
+      text,
+      trailingMarker
+    })),
+    bodyBlockYs: normalizedBodyBlocks.map((block) => block.y),
     footnotes
   };
 }
@@ -204,7 +211,10 @@ function splitFootnoteEntries(text: string): ArticleFootnote[] {
     .filter((footnote) => footnote.text);
 }
 
-function normalizeBodyBlocks(blocks: Array<TextBlock & { text: string }>, footnotes: ArticleFootnote[]): ArticleBodyBlock[] {
+function normalizeBodyBlocks(
+  blocks: Array<TextBlock & { text: string }>,
+  footnotes: ArticleFootnote[]
+): Array<ArticleBodyBlock & { y: number }> {
   const footnoteMarkers = new Set(footnotes.map((footnote) => footnote.marker).filter((marker): marker is string => Boolean(marker)));
   const normalizedBlocks: Array<(ArticleBodyBlock & { x: number; y: number; width: number; height: number })> = [];
   let pendingTrailingMarker:
@@ -283,9 +293,10 @@ function normalizeBodyBlocks(blocks: Array<TextBlock & { text: string }>, footno
     });
   }
 
-  return normalizedBlocks.map(({ text, trailingMarker }) => ({
+  return normalizedBlocks.map(({ text, trailingMarker, y }) => ({
     text,
-    trailingMarker
+    trailingMarker,
+    y
   }));
 }
 

@@ -564,12 +564,267 @@ describe("ArticleView", () => {
       </PreferenceSync>
     );
 
-    const body = container.querySelector(".article-blocks");
+    const bodyText = Array.from(container.querySelectorAll(".article-blocks"))
+      .map((node) => node.textContent ?? "")
+      .join("");
     const anchorLabels = Array.from(container.querySelectorAll(".section-anchor")).map((node) => node.textContent?.trim());
 
     expect(anchorLabels).toContain("前言");
-    expect(body?.textContent ?? "").toContain("诸位现在听的，是一位六十几岁的香港学者。");
-    expect(body?.textContent ?? "").not.toContain("前言");
+    expect(bodyText).toContain("诸位现在听的，是一位六十几岁的香港学者。");
+    expect(bodyText).not.toContain("前言");
+  });
+
+  it("renders carry-over text before later same-page section anchors", () => {
+    const continuationView: ArticleViewModel = {
+      ...view,
+      article: {
+        ...view.article,
+        slug: "page-133",
+        titleHans: "妾身元是分明月",
+        titleHant: "妾身元是分明月",
+        startPage: 133,
+        endPage: 134,
+        sections: [
+          {
+            level: 2,
+            page: 133,
+            titleHans: "一、前言：一个倒楣蛋的个案",
+            titleHant: "一、前言：一個倒楣蛋的個案"
+          },
+          {
+            level: 2,
+            page: 134,
+            titleHans: "二、一切的开始，因缘际会，恰逢其时",
+            titleHant: "二、一切的開始，因緣際會，恰逢其時"
+          },
+          {
+            level: 3,
+            page: 134,
+            titleHans: "（一）国族意识：中华民族与美利坚民族？",
+            titleHant: "（一）國族意識：中華民族與美利堅民族？"
+          }
+        ]
+      },
+      toc: [
+        {
+          id: "page-133-s1",
+          page: 133,
+          titleHans: "一、前言：一个倒楣蛋的个案",
+          titleHant: "一、前言：一個倒楣蛋的個案"
+        },
+        {
+          id: "page-133-s2",
+          page: 134,
+          titleHans: "二、一切的开始，因缘际会，恰逢其时",
+          titleHant: "二、一切的開始，因緣際會，恰逢其時"
+        },
+        {
+          id: "page-133-s2-1",
+          page: 134,
+          titleHans: "（一）国族意识：中华民族与美利坚民族？",
+          titleHant: "（一）國族意識：中華民族與美利堅民族？"
+        }
+      ],
+      locales: {
+        "zh-Hans": {
+          pages: [
+            {
+              pageId: "issue-01-p133",
+              locale: "zh-Hans",
+              pageNumber: 133,
+              pageLabel: "133",
+              renderedPageAsset: "/page-133.jpg",
+              viewport: { width: 420, height: 595 },
+              textBlocks: [
+                {
+                  x: 54,
+                  y: 224,
+                  width: 291,
+                  height: 28,
+                  text: "一、前言：一个倒楣蛋的个案"
+                },
+                {
+                  x: 74,
+                  y: 439,
+                  width: 280,
+                  height: 10,
+                  text: "我不知自己是否具有成为「二十一世纪汉人民族意识重新觉醒历"
+                }
+              ],
+              images: []
+            },
+            {
+              pageId: "issue-01-p134",
+              locale: "zh-Hans",
+              pageNumber: 134,
+              pageLabel: "134",
+              renderedPageAsset: "/page-134.jpg",
+              viewport: { width: 420, height: 595 },
+              textBlocks: [
+                {
+                  x: 54,
+                  y: 76,
+                  width: 310,
+                  height: 10,
+                  text: "程」的「个案研究」主体的价值，但作为在这个时代中「真的还活着」"
+                },
+                {
+                  x: 54,
+                  y: 94,
+                  width: 310,
+                  height: 10,
+                  text: "的一个人，我的故事若能启发几分读者，便可称有「譬诸山肴野蔌，聊"
+                },
+                {
+                  x: 54,
+                  y: 112,
+                  width: 245,
+                  height: 10,
+                  text: "而杂陈，倘俎诸五侯之鲭，当辗然一笑」之幸运了吧。"
+                },
+                {
+                  x: 54,
+                  y: 155,
+                  width: 310,
+                  height: 23,
+                  text: "二、一切的开始，因缘际会，恰逢其时"
+                },
+                {
+                  x: 54,
+                  y: 224,
+                  width: 308,
+                  height: 20,
+                  text: "（一）国族意识：中华民族与美利坚民族？"
+                },
+                {
+                  x: 74,
+                  y: 280,
+                  width: 285,
+                  height: 10,
+                  text: "一般来讲，大陆零零后汉族学生，「国族意识」大概率早于「民族"
+                },
+                {
+                  x: 54,
+                  y: 298,
+                  width: 63,
+                  height: 10,
+                  text: "意识」萌发。"
+                }
+              ],
+              images: []
+            }
+          ]
+        },
+        "zh-Hant": {
+          pages: [
+            {
+              pageId: "issue-01-p133-hant",
+              locale: "zh-Hant",
+              pageNumber: 133,
+              pageLabel: "133",
+              renderedPageAsset: "/page-133.jpg",
+              viewport: { width: 420, height: 595 },
+              textBlocks: [
+                {
+                  x: 54,
+                  y: 229,
+                  width: 291,
+                  height: 23,
+                  text: "一、前言：一個倒楣蛋的個案"
+                },
+                {
+                  x: 74,
+                  y: 439,
+                  width: 280,
+                  height: 10,
+                  text: "我不知自己是否具有成為「二十一世紀漢人民族意識重新覺醒歷"
+                }
+              ],
+              images: []
+            },
+            {
+              pageId: "issue-01-p134-hant",
+              locale: "zh-Hant",
+              pageNumber: 134,
+              pageLabel: "134",
+              renderedPageAsset: "/page-134.jpg",
+              viewport: { width: 420, height: 595 },
+              textBlocks: [
+                {
+                  x: 54,
+                  y: 76,
+                  width: 310,
+                  height: 10,
+                  text: "程」的「個案研究」主體的價值，但作為在這個時代中「真的還活著」"
+                },
+                {
+                  x: 54,
+                  y: 94,
+                  width: 310,
+                  height: 10,
+                  text: "的一個人，我的故事若能啟發幾分讀者，便可稱有「譬諸山肴野蔌，聊"
+                },
+                {
+                  x: 54,
+                  y: 112,
+                  width: 245,
+                  height: 10,
+                  text: "而雜陳，倘俎諸五侯之鯖，當輾然一笑」之幸運了吧。"
+                },
+                {
+                  x: 54,
+                  y: 158,
+                  width: 311,
+                  height: 19,
+                  text: "二、一切的開始，因緣際會，恰逢其時"
+                },
+                {
+                  x: 54,
+                  y: 227,
+                  width: 308,
+                  height: 17,
+                  text: "（一）國族意識：中華民族與美利堅民族？"
+                },
+                {
+                  x: 74,
+                  y: 280,
+                  width: 285,
+                  height: 10,
+                  text: "一般來講，大陸零零後漢族學生，「國族意識」大概率早於「民族"
+                },
+                {
+                  x: 54,
+                  y: 298,
+                  width: 63,
+                  height: 10,
+                  text: "意識」萌發。"
+                }
+              ],
+              images: []
+            }
+          ]
+        }
+      }
+    };
+
+    const { container } = render(
+      <PreferenceSync preferences={preferences}>
+        <ArticleView view={continuationView} preferences={preferences} />
+      </PreferenceSync>
+    );
+
+    const articleText = container.querySelector(".article-pages")?.textContent ?? "";
+
+    expect(articleText).toContain("我不知自己是否具有成为「二十一世纪汉人民族意识重新觉醒历程」的「个案研究」主体的价值");
+    expect(articleText.indexOf("我不知自己是否具有成为「二十一世纪汉人民族意识重新觉醒历程」的「个案研究」主体的价值")).toBeLessThan(
+      articleText.indexOf("二、一切的开始，因缘际会，恰逢其时")
+    );
+    expect(articleText.indexOf("二、一切的开始，因缘际会，恰逢其时")).toBeLessThan(
+      articleText.indexOf("（一）国族意识：中华民族与美利坚民族？")
+    );
+    expect(articleText.indexOf("（一）国族意识：中华民族与美利坚民族？")).toBeLessThan(
+      articleText.indexOf("一般来讲，大陆零零后汉族学生")
+    );
   });
 
   it("renders OCR footnote markers as inline superscripts instead of body text", () => {

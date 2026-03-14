@@ -22,10 +22,19 @@ export function ArticleView({
   const pageSections = mergeCrossPageBodyContinuations(
     localePages.map((page) => {
       const sectionLinks = view.toc.filter((entry) => entry.page === page.pageNumber);
+      const sectionAnchors = resolveSectionAnchors(
+        page,
+        sectionLinks.map((entry, index) => ({
+          entry,
+          title: activePreferences.script === "zh-Hant" ? entry.titleHant : entry.titleHans,
+          index
+        }))
+      );
 
       return {
         page,
         sectionLinks,
+        sectionAnchors,
         pageLayout: buildArticlePageLayout(page, {
           isArticleStartPage: page.pageNumber === view.article.startPage,
           hiddenTitles: [
@@ -59,15 +68,11 @@ export function ArticleView({
           </aside>
 
           <div className="article-pages">
-            {pageSections.map(({ page, sectionLinks, pageLayout }) => {
+            {pageSections.map(({ page, sectionLinks, sectionAnchors, pageLayout }) => {
+              const contentFlow = buildPageContentFlow(pageLayout, sectionLinks, sectionAnchors);
+
               return (
                 <section key={page.pageId} className="article-page-section">
-                  {sectionLinks.map((entry) => (
-                    <div key={entry.id} id={entry.id} className="section-anchor">
-                      {activePreferences.script === "zh-Hant" ? entry.titleHant : entry.titleHans}
-                    </div>
-                  ))}
-
                   {pageLayout.pageNote ? (
                     <div className="article-page-note">
                       <span>{pageLayout.pageNote.text}</span>
@@ -75,11 +80,29 @@ export function ArticleView({
                     </div>
                   ) : null}
 
-                  <div className="article-blocks">
-                    {pageLayout.bodyBlocks.map((block, index) => (
-                      <p key={`${page.pageId}-${index}`}>{renderBodyBlock(block.text, block.trailingMarker, pageLayout.footnotes.map((footnote) => footnote.marker).filter((marker): marker is string => Boolean(marker)))}</p>
-                    ))}
-                  </div>
+                  {contentFlow.map((item, index) => {
+                    if (item.type === "anchor") {
+                      return (
+                        <div key={`${page.pageId}-anchor-${item.entry.id}-${index}`} id={item.entry.id} className="section-anchor">
+                          {activePreferences.script === "zh-Hant" ? item.entry.titleHant : item.entry.titleHans}
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div key={`${page.pageId}-blocks-${index}`} className="article-blocks">
+                        {item.blocks.map((block, blockIndex) => (
+                          <p key={`${page.pageId}-${index}-${blockIndex}`}>
+                            {renderBodyBlock(
+                              block.text,
+                              block.trailingMarker,
+                              pageLayout.footnotes.map((footnote) => footnote.marker).filter((marker): marker is string => Boolean(marker))
+                            )}
+                          </p>
+                        ))}
+                      </div>
+                    );
+                  })}
 
                   {pageLayout.footnotes.length > 0 ? (
                     <ol className="article-footnotes">
@@ -193,6 +216,11 @@ function mergeCrossPageBodyContinuations(
   pageSections: Array<{
     page: ArticleViewModel["locales"][keyof ArticleViewModel["locales"]]["pages"][number];
     sectionLinks: ArticleViewModel["toc"];
+    sectionAnchors: Array<{
+      entry: ArticleViewModel["toc"][number];
+      y: number | undefined;
+      order: number;
+    }>;
     pageLayout: ReturnType<typeof buildArticlePageLayout>;
   }>
 ) {
@@ -201,6 +229,7 @@ function mergeCrossPageBodyContinuations(
     pageLayout: {
       ...section.pageLayout,
       bodyBlocks: section.pageLayout.bodyBlocks.map((block) => ({ ...block })),
+      bodyBlockYs: [...section.pageLayout.bodyBlockYs],
       footnotes: section.pageLayout.footnotes.map((footnote) => ({ ...footnote }))
     }
   }));
@@ -210,18 +239,23 @@ function mergeCrossPageBodyContinuations(
     const currentSection = mergedSections[index];
     const previousLastBlock = previousSection.pageLayout.bodyBlocks.at(-1);
     const currentFirstBlock = currentSection.pageLayout.bodyBlocks[0];
+    const currentFirstBlockY = currentSection.pageLayout.bodyBlockYs[0];
+    const firstResolvedAnchorY = currentSection.sectionAnchors.find((anchor) => anchor.y !== undefined)?.y;
+    const hasLeadingContinuation =
+      currentSection.sectionLinks.length === 0 || (currentFirstBlockY !== undefined && firstResolvedAnchorY !== undefined && currentFirstBlockY < firstResolvedAnchorY);
 
     if (!previousLastBlock || !currentFirstBlock) {
       continue;
     }
 
-    if (currentSection.sectionLinks.length > 0 || previousLastBlock.trailingMarker || /[。！？；:：]$/.test(previousLastBlock.text)) {
+    if (!hasLeadingContinuation || previousLastBlock.trailingMarker || /[。！？；:：]$/.test(previousLastBlock.text)) {
       continue;
     }
 
     previousLastBlock.text = mergeContinuedText(previousLastBlock.text, currentFirstBlock.text);
     previousLastBlock.trailingMarker = currentFirstBlock.trailingMarker ?? previousLastBlock.trailingMarker;
     currentSection.pageLayout.bodyBlocks = currentSection.pageLayout.bodyBlocks.slice(1);
+    currentSection.pageLayout.bodyBlockYs = currentSection.pageLayout.bodyBlockYs.slice(1);
   }
 
   return mergedSections;
@@ -233,4 +267,135 @@ function mergeContinuedText(left: string, right: string) {
   }
 
   return `${left}${right}`;
+}
+
+function buildPageContentFlow(
+  pageLayout: ReturnType<typeof buildArticlePageLayout>,
+  sectionLinks: ArticleViewModel["toc"],
+  sectionAnchors: Array<{
+    entry: ArticleViewModel["toc"][number];
+    y: number | undefined;
+    order: number;
+  }>
+) {
+  const flow: Array<
+    | {
+        type: "anchor";
+        entry: ArticleViewModel["toc"][number];
+      }
+    | {
+        type: "blocks";
+        blocks: ReturnType<typeof buildArticlePageLayout>["bodyBlocks"];
+      }
+  > = [];
+  const bodyBlocks = pageLayout.bodyBlocks;
+  const bodyBlockYs = pageLayout.bodyBlockYs;
+  const resolvedAnchorIds = new Set(sectionAnchors.map((anchor) => anchor.entry.id));
+  const orderedAnchors = [...sectionAnchors].sort((left, right) => {
+    const leftY = left.y ?? Number.NEGATIVE_INFINITY;
+    const rightY = right.y ?? Number.NEGATIVE_INFINITY;
+
+    if (leftY !== rightY) {
+      return leftY - rightY;
+    }
+
+    return left.order - right.order;
+  });
+  let blockIndex = 0;
+
+  for (const anchor of orderedAnchors) {
+    const anchorY = anchor.y ?? Number.NEGATIVE_INFINITY;
+    const leadingBlocks: typeof bodyBlocks = [];
+
+    while (blockIndex < bodyBlocks.length && (bodyBlockYs[blockIndex] ?? Number.POSITIVE_INFINITY) < anchorY) {
+      leadingBlocks.push(bodyBlocks[blockIndex]);
+      blockIndex += 1;
+    }
+
+    if (leadingBlocks.length > 0) {
+      flow.push({
+        type: "blocks",
+        blocks: leadingBlocks
+      });
+    }
+
+    flow.push({
+      type: "anchor",
+      entry: anchor.entry
+    });
+  }
+
+  if (blockIndex < bodyBlocks.length) {
+    flow.push({
+      type: "blocks",
+      blocks: bodyBlocks.slice(blockIndex)
+    });
+  }
+
+  for (const entry of sectionLinks) {
+    if (resolvedAnchorIds.has(entry.id)) {
+      continue;
+    }
+
+    flow.unshift({
+      type: "anchor",
+      entry
+    });
+  }
+
+  return flow;
+}
+
+function resolveSectionAnchors(
+  page: ArticleViewModel["locales"][keyof ArticleViewModel["locales"]]["pages"][number],
+  sectionLinks: Array<{
+    entry: ArticleViewModel["toc"][number];
+    title: string;
+    index: number;
+  }>
+) {
+  const sortedBlocks = [...page.textBlocks].sort((left, right) => {
+    if (left.y !== right.y) {
+      return left.y - right.y;
+    }
+
+    return left.x - right.x;
+  });
+  const usedBlockIndexes = new Set<number>();
+
+  return sectionLinks.map(({ entry, title, index }) => {
+    const normalizedTitle = normalizeComparableText(title);
+    let matchedY: number | undefined;
+
+    for (const [blockIndex, block] of sortedBlocks.entries()) {
+      if (usedBlockIndexes.has(blockIndex)) {
+        continue;
+      }
+
+      if (!isLikelySectionHeading(block, page) || normalizeComparableText(block.text) !== normalizedTitle) {
+        continue;
+      }
+
+      usedBlockIndexes.add(blockIndex);
+      matchedY = block.y;
+      break;
+    }
+
+    return {
+      entry,
+      y: matchedY,
+      order: index
+    };
+  });
+}
+
+function isLikelySectionHeading(
+  block: ArticleViewModel["locales"][keyof ArticleViewModel["locales"]]["pages"][number]["textBlocks"][number],
+  page: ArticleViewModel["locales"][keyof ArticleViewModel["locales"]]["pages"][number]
+) {
+  return block.height >= page.viewport.height * 0.028 && block.x <= page.viewport.width * 0.22;
+}
+
+function normalizeComparableText(text: string) {
+  return text.trim().replace(/\d+$/, "").trim();
 }
