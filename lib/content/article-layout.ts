@@ -44,7 +44,7 @@ export function buildArticlePageLayout(
     ? extractStartPageTitleBlockIndexes(blocks, page, options?.hiddenTitles?.[0])
     : [];
   const skippedBlockIndexes = new Set([...(extractedPageNote?.blockIndexes ?? []), ...extractedTitleBlockIndexes]);
-  let pageNote: ArticleInlineNote | undefined = extractedPageNote?.note;
+  const pageNote: ArticleInlineNote | undefined = extractedPageNote?.note;
 
   for (const [index, block] of blocks.entries()) {
     if (skippedBlockIndexes.has(index)) {

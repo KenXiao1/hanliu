@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import Image from "next/image";
 
 import { LazyGiscusComments } from "@/components/site/lazy-giscus";
@@ -138,8 +139,8 @@ function renderInlineFootnoteMarkers(text: string, footnoteMarkers: string[]) {
     return text;
   }
 
-  const markerPattern = footnoteMarkers
-    .toSorted((left, right) => right.length - left.length)
+  const markerPattern = [...footnoteMarkers]
+    .sort((left, right) => right.length - left.length)
     .map(escapeForRegex)
     .join("|");
 
@@ -148,7 +149,7 @@ function renderInlineFootnoteMarkers(text: string, footnoteMarkers: string[]) {
   }
 
   const markerPatternRegex = new RegExp(`(^|[。；，、：「」『』》）])(${markerPattern})(?=[\\u3400-\\u9FFF「『（《〈【])`, "gu");
-  const nodes: Array<string | JSX.Element> = [];
+  const nodes: ReactNode[] = [];
   let lastIndex = 0;
 
   for (const match of text.matchAll(markerPatternRegex)) {
