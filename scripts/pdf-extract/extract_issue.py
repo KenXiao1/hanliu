@@ -16,22 +16,28 @@ except ImportError:  # pragma: no cover
 
 ROOT = Path(__file__).resolve().parents[2]
 ISSUE_ID = "issue-01"
-SIMP_PDF = ROOT / "Celestial_Reserve_《漢留》第一集（簡體版）20260309.pdf"
-TRAD_PDF = ROOT / "Celestial_Reserve_《漢留》第一集（繁體版）20260309.pdf"
+SIMP_PDF_CANDIDATES = [
+    ROOT / "Celestial_Reserve_《漢留》第一集（簡體版）20260309.pdf",
+    ROOT / "public" / "pdfs" / ISSUE_ID / "zh-Hans.pdf",
+]
+TRAD_PDF_CANDIDATES = [
+    ROOT / "Celestial_Reserve_《漢留》第一集（繁體版）20260309.pdf",
+    ROOT / "public" / "pdfs" / ISSUE_ID / "zh-Hant.pdf",
+]
 DATA_DIR = ROOT / "data" / "issues" / ISSUE_ID
 PUBLIC_DIR = ROOT / "public" / "generated" / ISSUE_ID
 CORRUPTED_SUFFIX_PATTERN = re.compile(r"(?:\d+[A-F]){2,}$", re.IGNORECASE)
 
 
 def main() -> None:
-    ensure_exists(SIMP_PDF)
-    ensure_exists(TRAD_PDF)
+    simp_pdf = resolve_existing_path(SIMP_PDF_CANDIDATES)
+    trad_pdf = resolve_existing_path(TRAD_PDF_CANDIDATES)
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     PUBLIC_DIR.mkdir(parents=True, exist_ok=True)
 
     converter = OpenCC("s2t") if OpenCC else None
 
-    simp_reader = PdfReader(str(SIMP_PDF))
+    simp_reader = PdfReader(str(simp_pdf))
     outline = extract_outline(simp_reader, converter)
     articles = build_articles(outline, len(simp_reader.pages))
 
@@ -46,8 +52,8 @@ def main() -> None:
         "toc": outline,
     }
 
-    simp_doc = fitz.open(SIMP_PDF)
-    trad_doc = fitz.open(TRAD_PDF)
+    simp_doc = fitz.open(simp_pdf)
+    trad_doc = fitz.open(trad_pdf)
     pages_hans = extract_pages(simp_doc, "zh-Hans")
     pages_hant = extract_pages(trad_doc, "zh-Hant")
 
@@ -59,9 +65,12 @@ def main() -> None:
     print(f"Wrote {len(pages_hans)} simplified pages and {len(pages_hant)} traditional pages.")
 
 
-def ensure_exists(file_path: Path) -> None:
-    if not file_path.exists():
-        raise FileNotFoundError(file_path)
+def resolve_existing_path(candidates: list[Path]) -> Path:
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+
+    raise FileNotFoundError(candidates[0])
 
 
 def clean_outline_title(value: str) -> str:
@@ -228,10 +237,23 @@ def extract_page_images(
                 "alt": f"《漢留》第 {page_number} 页插图 {index}",
                 "width": extracted.get("width", 0),
                 "height": extracted.get("height", 0),
+                **extract_image_position(page, xref),
             }
         )
 
     return images
+
+
+def extract_image_position(page: fitz.Page, xref: int) -> dict[str, float]:
+    rects = page.get_image_rects(xref)
+    if not rects:
+        return {}
+
+    rect = rects[0]
+    return {
+        "x": round(rect.x0, 2),
+        "y": round(rect.y0, 2),
+    }
 
 
 def normalize_block_text(text: str) -> str:

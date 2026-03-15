@@ -56,20 +56,22 @@ export function ArticleView({
         </header>
 
         <div className="article-columns">
-          <aside className="article-toc">
-            <h2>本文目录</h2>
-            <ol>
-              {view.toc.map((entry) => (
-                <li key={entry.id}>
-                  <a href={`#${entry.id}`}>{activePreferences.script === "zh-Hant" ? entry.titleHant : entry.titleHans}</a>
-                </li>
-              ))}
-            </ol>
-          </aside>
+          {view.toc.length > 0 ? (
+            <aside className="article-toc">
+              <h2>本文目录</h2>
+              <ol>
+                {view.toc.map((entry) => (
+                  <li key={entry.id}>
+                    <a href={`#${entry.id}`}>{activePreferences.script === "zh-Hant" ? entry.titleHant : entry.titleHans}</a>
+                  </li>
+                ))}
+              </ol>
+            </aside>
+          ) : null}
 
           <div className="article-pages">
             {pageSections.map(({ page, sectionLinks, sectionAnchors, pageLayout }) => {
-              const contentFlow = buildPageContentFlow(pageLayout, sectionLinks, sectionAnchors);
+              const contentFlow = buildPageContentFlow(page, pageLayout, sectionLinks, sectionAnchors);
 
               return (
                 <section key={page.pageId} className="article-page-section">
@@ -85,6 +87,18 @@ export function ArticleView({
                       return (
                         <div key={`${page.pageId}-anchor-${item.entry.id}-${index}`} id={item.entry.id} className="section-anchor">
                           {activePreferences.script === "zh-Hant" ? item.entry.titleHant : item.entry.titleHans}
+                        </div>
+                      );
+                    }
+
+                    if (item.type === "images") {
+                      return (
+                        <div key={`${page.pageId}-images-${index}`} className="article-gallery">
+                          {item.images.map((image) => (
+                            <figure key={image.src}>
+                              <Image src={image.src} alt={image.alt} width={image.width} height={image.height} sizes="(max-width: 1024px) 100vw, 700px" />
+                            </figure>
+                          ))}
                         </div>
                       );
                     }
@@ -116,16 +130,6 @@ export function ArticleView({
                         </li>
                       ))}
                     </ol>
-                  ) : null}
-
-                  {page.images.length > 0 ? (
-                    <div className="article-gallery">
-                      {page.images.map((image) => (
-                        <figure key={image.src}>
-                          <Image src={image.src} alt={image.alt} width={image.width} height={image.height} sizes="(max-width: 1024px) 100vw, 700px" />
-                        </figure>
-                      ))}
-                    </div>
                   ) : null}
                 </section>
               );
@@ -246,14 +250,23 @@ function mergeCrossPageBodyContinuations(
     const currentFirstBlock = currentSection.pageLayout.bodyBlocks[0];
     const currentFirstBlockY = currentSection.pageLayout.bodyBlockYs[0];
     const firstResolvedAnchorY = currentSection.sectionAnchors.find((anchor) => anchor.y !== undefined)?.y;
+    const startsNearTop = currentFirstBlockY !== undefined && currentFirstBlockY <= currentSection.page.viewport.height * 0.22;
     const hasLeadingContinuation =
-      currentSection.sectionLinks.length === 0 || (currentFirstBlockY !== undefined && firstResolvedAnchorY !== undefined && currentFirstBlockY < firstResolvedAnchorY);
+      startsNearTop &&
+      (currentSection.sectionLinks.length === 0 ||
+        (currentFirstBlockY !== undefined && firstResolvedAnchorY !== undefined && currentFirstBlockY < firstResolvedAnchorY));
 
     if (!previousLastBlock || !currentFirstBlock) {
       continue;
     }
 
-    if (!hasLeadingContinuation || previousLastBlock.trailingMarker || /[。！？；:：]$/.test(previousLastBlock.text)) {
+    if (
+      !hasLeadingContinuation ||
+      previousLastBlock.trailingMarker ||
+      /[。！？；:：]$/.test(previousLastBlock.text) ||
+      looksLikeMetadataParagraph(previousLastBlock.text) ||
+      looksLikeMetadataParagraph(currentFirstBlock.text)
+    ) {
       continue;
     }
 
@@ -292,6 +305,7 @@ function mergeContinuedText(left: string, right: string) {
 }
 
 function buildPageContentFlow(
+  page: ArticleViewModel["locales"][keyof ArticleViewModel["locales"]]["pages"][number],
   pageLayout: ReturnType<typeof buildArticlePageLayout>,
   sectionLinks: ArticleViewModel["toc"],
   sectionAnchors: Array<{
@@ -309,11 +323,34 @@ function buildPageContentFlow(
         type: "blocks";
         blocks: ReturnType<typeof buildArticlePageLayout>["bodyBlocks"];
       }
+    | {
+        type: "images";
+        images: ArticleViewModel["locales"][keyof ArticleViewModel["locales"]]["pages"][number]["images"];
+      }
   > = [];
-  const bodyBlocks = pageLayout.bodyBlocks;
-  const bodyBlockYs = pageLayout.bodyBlockYs;
-  const resolvedAnchorIds = new Set(sectionAnchors.map((anchor) => anchor.entry.id));
-  const orderedAnchors = [...sectionAnchors].sort((left, right) => {
+  const contentItems = [
+    ...pageLayout.bodyBlocks.map((block, index) => ({
+      type: "block" as const,
+      y: pageLayout.bodyBlockYs[index] ?? Number.POSITIVE_INFINITY,
+      x: 0,
+      block
+    })),
+    ...page.images.map((image) => ({
+      type: "image" as const,
+      y: image.y ?? Number.POSITIVE_INFINITY,
+      x: image.x ?? 0,
+      image
+    }))
+  ].sort((left, right) => {
+    if (left.y !== right.y) {
+      return left.y - right.y;
+    }
+
+    return left.x - right.x;
+  });
+  const resolvedAnchors = sectionAnchors.filter((anchor) => anchor.y !== undefined);
+  const resolvedAnchorIds = new Set(resolvedAnchors.map((anchor) => anchor.entry.id));
+  const orderedAnchors = [...resolvedAnchors].sort((left, right) => {
     const leftY = left.y ?? Number.NEGATIVE_INFINITY;
     const rightY = right.y ?? Number.NEGATIVE_INFINITY;
 
@@ -323,23 +360,54 @@ function buildPageContentFlow(
 
     return left.order - right.order;
   });
-  let blockIndex = 0;
+  let contentIndex = 0;
 
-  for (const anchor of orderedAnchors) {
-    const anchorY = anchor.y ?? Number.NEGATIVE_INFINITY;
-    const leadingBlocks: typeof bodyBlocks = [];
+  const flushLeadingContent = (limitY: number) => {
+    const pendingBlocks: ReturnType<typeof buildArticlePageLayout>["bodyBlocks"] = [];
+    const pendingImages: typeof page.images = [];
 
-    while (blockIndex < bodyBlocks.length && (bodyBlockYs[blockIndex] ?? Number.POSITIVE_INFINITY) < anchorY) {
-      leadingBlocks.push(bodyBlocks[blockIndex]);
-      blockIndex += 1;
-    }
+    const flushBlocks = () => {
+      if (pendingBlocks.length === 0) {
+        return;
+      }
 
-    if (leadingBlocks.length > 0) {
       flow.push({
         type: "blocks",
-        blocks: leadingBlocks
+        blocks: pendingBlocks.splice(0)
       });
+    };
+
+    const flushImages = () => {
+      if (pendingImages.length === 0) {
+        return;
+      }
+
+      flow.push({
+        type: "images",
+        images: pendingImages.splice(0)
+      });
+    };
+
+    while (contentIndex < contentItems.length && contentItems[contentIndex].y < limitY) {
+      const item = contentItems[contentIndex];
+      contentIndex += 1;
+
+      if (item.type === "block") {
+        flushImages();
+        pendingBlocks.push(item.block);
+        continue;
+      }
+
+      flushBlocks();
+      pendingImages.push(item.image);
     }
+
+    flushBlocks();
+    flushImages();
+  };
+
+  for (const anchor of orderedAnchors) {
+    flushLeadingContent(anchor.y ?? Number.NEGATIVE_INFINITY);
 
     flow.push({
       type: "anchor",
@@ -347,19 +415,14 @@ function buildPageContentFlow(
     });
   }
 
-  if (blockIndex < bodyBlocks.length) {
-    flow.push({
-      type: "blocks",
-      blocks: bodyBlocks.slice(blockIndex)
-    });
-  }
+  flushLeadingContent(Number.POSITIVE_INFINITY);
 
   for (const entry of sectionLinks) {
     if (resolvedAnchorIds.has(entry.id)) {
       continue;
     }
 
-    flow.unshift({
+    flow.push({
       type: "anchor",
       entry
     });
@@ -383,6 +446,9 @@ function resolveSectionAnchors(
 
     return left.x - right.x;
   });
+  const headingCandidates = sortedBlocks
+    .map((block, index) => ({ block, index }))
+    .filter(({ block }) => isLikelySectionHeading(block, page));
   const usedBlockIndexes = new Set<number>();
 
   return sectionLinks.map(({ entry, title, index }) => {
@@ -401,6 +467,53 @@ function resolveSectionAnchors(
       usedBlockIndexes.add(blockIndex);
       matchedY = block.y;
       break;
+    }
+
+    if (matchedY === undefined) {
+      for (let startIndex = 0; startIndex < headingCandidates.length; startIndex += 1) {
+        const startCandidate = headingCandidates[startIndex];
+
+        if (usedBlockIndexes.has(startCandidate.index)) {
+          continue;
+        }
+
+        let combinedTitle = "";
+        const matchedIndexes: number[] = [];
+
+        for (let endIndex = startIndex; endIndex < headingCandidates.length; endIndex += 1) {
+          const candidate = headingCandidates[endIndex];
+          const previousCandidate = endIndex > startIndex ? headingCandidates[endIndex - 1] : undefined;
+
+          if (usedBlockIndexes.has(candidate.index)) {
+            break;
+          }
+
+          if (
+            previousCandidate &&
+            (candidate.block.y - previousCandidate.block.y > Math.max(previousCandidate.block.height, candidate.block.height) * 3.4 ||
+              Math.abs(candidate.block.x - previousCandidate.block.x) > page.viewport.width * 0.08)
+          ) {
+            break;
+          }
+
+          combinedTitle += normalizeComparableText(candidate.block.text);
+          matchedIndexes.push(candidate.index);
+
+          if (combinedTitle === normalizedTitle) {
+            matchedIndexes.forEach((matchedIndex) => usedBlockIndexes.add(matchedIndex));
+            matchedY = startCandidate.block.y;
+            break;
+          }
+
+          if (!normalizedTitle.startsWith(combinedTitle)) {
+            break;
+          }
+        }
+
+        if (matchedY !== undefined) {
+          break;
+        }
+      }
     }
 
     return {
@@ -424,4 +537,20 @@ function normalizeComparableText(text: string) {
 
 function mergeMarkerLists(left: string[], right: string[]) {
   return [...new Set([...left, ...right])];
+}
+
+function looksLikeMetadataParagraph(text: string) {
+  const trimmed = text.trim();
+
+  if (!trimmed) {
+    return false;
+  }
+
+  if (/https?:\/\/|[@＠]/u.test(trimmed)) {
+    return true;
+  }
+
+  return /^(?:参考文献分享区：|投稿邮箱：|电邮：|出版者：|发行人、总编辑：|封面设计：|新台币赞助|人民币赞助)/u.test(
+    trimmed
+  );
 }

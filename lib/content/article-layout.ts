@@ -39,7 +39,12 @@ export function buildArticlePageLayout(
   const extractedTitleBlockIndexes = options?.isArticleStartPage
     ? extractStartPageTitleBlockIndexes(blocks, page, options?.hiddenTitles?.[0])
     : [];
-  const skippedBlockIndexes = new Set([...(extractedPageNote?.blockIndexes ?? []), ...extractedTitleBlockIndexes]);
+  const hiddenHeadingBlockIndexes = extractHiddenHeadingBlockIndexes(blocks, page, options?.hiddenTitles ?? []);
+  const skippedBlockIndexes = new Set([
+    ...(extractedPageNote?.blockIndexes ?? []),
+    ...extractedTitleBlockIndexes,
+    ...hiddenHeadingBlockIndexes
+  ]);
   const pageNote: ArticleInlineNote | undefined = extractedPageNote?.note;
 
   for (const [index, block] of blocks.entries()) {
@@ -78,7 +83,7 @@ export function buildArticlePageLayout(
     bodyBlocks.push({ ...block, text });
   }
 
-  const normalizedBodyBlocks = normalizeBodyBlocks(bodyBlocks, footnotes);
+  const normalizedBodyBlocks = normalizeBodyBlocks(bodyBlocks, footnotes, page.viewport.width);
 
   return {
     pageNote,
@@ -155,6 +160,76 @@ function extractStartPageTitleBlockIndexes(blocks: TextBlock[], page: PageData, 
   }
 
   return [];
+}
+
+function extractHiddenHeadingBlockIndexes(blocks: TextBlock[], page: PageData, hiddenTitles: string[]) {
+  const normalizedTitles = hiddenTitles.map(normalizeComparableText).filter(Boolean);
+
+  if (normalizedTitles.length === 0) {
+    return [];
+  }
+
+  const headingCandidates = blocks
+    .map((block, index) => ({ block, index }))
+    .filter(({ block }) => isHeadingBlock(block, page));
+  const matchedIndexes = new Set<number>();
+
+  for (const title of normalizedTitles) {
+    const exactMatch = headingCandidates.find(
+      ({ block, index }) => !matchedIndexes.has(index) && normalizeComparableText(block.text) === title
+    );
+
+    if (exactMatch) {
+      matchedIndexes.add(exactMatch.index);
+      continue;
+    }
+
+    for (let startIndex = 0; startIndex < headingCandidates.length; startIndex += 1) {
+      const start = headingCandidates[startIndex];
+
+      if (matchedIndexes.has(start.index)) {
+        continue;
+      }
+
+      let combined = "";
+      const sequenceIndexes: number[] = [];
+
+      for (let endIndex = startIndex; endIndex < headingCandidates.length; endIndex += 1) {
+        const candidate = headingCandidates[endIndex];
+        const previousCandidate = endIndex > startIndex ? headingCandidates[endIndex - 1] : undefined;
+
+        if (matchedIndexes.has(candidate.index)) {
+          break;
+        }
+
+        if (
+          previousCandidate &&
+          (candidate.block.y - previousCandidate.block.y > Math.max(previousCandidate.block.height, candidate.block.height) * 3.4 ||
+            Math.abs(candidate.block.x - previousCandidate.block.x) > page.viewport.width * 0.08)
+        ) {
+          break;
+        }
+
+        combined += normalizeComparableText(candidate.block.text);
+        sequenceIndexes.push(candidate.index);
+
+        if (combined === title) {
+          sequenceIndexes.forEach((index) => matchedIndexes.add(index));
+          break;
+        }
+
+        if (!title.startsWith(combined)) {
+          break;
+        }
+      }
+
+      if (sequenceIndexes.some((index) => matchedIndexes.has(index))) {
+        break;
+      }
+    }
+  }
+
+  return [...matchedIndexes];
 }
 
 function isPdfPageNumber(block: TextBlock, page: PageData) {
@@ -247,7 +322,8 @@ function extractFootnoteEntries(text: string) {
 
 function normalizeBodyBlocks(
   blocks: Array<TextBlock & { text: string }>,
-  footnotes: ArticleFootnote[]
+  footnotes: ArticleFootnote[],
+  pageWidth: number
 ): Array<ArticleBodyBlock & { y: number }> {
   const footnoteMarkers = new Set(footnotes.map((footnote) => footnote.marker).filter((marker): marker is string => Boolean(marker)));
   const normalizedBlocks: Array<(ArticleBodyBlock & { x: number; y: number; width: number; height: number })> = [];
@@ -305,7 +381,7 @@ function normalizeBodyBlocks(
       continue;
     }
 
-    if (previousBlock && shouldMergeWrappedLine(previousBlock, block)) {
+    if (previousBlock && shouldMergeWrappedLine(previousBlock, block, pageWidth)) {
       previousBlock.text = mergeWrappedText(previousBlock.text, block.text);
       previousBlock.x = block.x;
       previousBlock.y = block.y;
@@ -392,13 +468,22 @@ function normalizeComparableText(text: string) {
 
 function shouldMergeWrappedLine(
   previousBlock: { text: string; x: number; y: number; width: number; height: number },
-  currentBlock: TextBlock
+  currentBlock: TextBlock,
+  pageWidth: number
 ) {
   const verticalGap = currentBlock.y - previousBlock.y;
   const alignedToSameColumn = Math.abs(previousBlock.x - currentBlock.x) <= 2;
   const indentedWrappedContinuation = isIndentedWrappedContinuation(previousBlock, currentBlock);
 
   if (!alignedToSameColumn && !indentedWrappedContinuation) {
+    return false;
+  }
+
+  if (looksLikeStandaloneMetadataLine(previousBlock.text) || looksLikeStandaloneMetadataLine(currentBlock.text)) {
+    return false;
+  }
+
+  if (isNarrowStandaloneLine(previousBlock, pageWidth) && isNarrowStandaloneLine(currentBlock, pageWidth)) {
     return false;
   }
 
@@ -439,4 +524,42 @@ function mergeWrappedText(left: string, right: string) {
   }
 
   return `${left}${right}`;
+}
+
+function looksLikeStandaloneMetadataLine(text: string) {
+  const trimmed = text.trim();
+
+  if (!trimmed) {
+    return false;
+  }
+
+  if (/https?:\/\/|[@＠]/u.test(trimmed)) {
+    return true;
+  }
+
+  return /^(?:参考文献分享区：|投稿邮箱：|电邮：|出版者：|发行人、总编辑：|封面设计：|新台币赞助|人民币赞助)/u.test(
+    trimmed
+  );
+}
+
+function isNarrowStandaloneLine(block: { text: string; width: number }, pageWidth: number) {
+  const trimmed = block.text.trim();
+
+  if (!trimmed) {
+    return false;
+  }
+
+  if (block.width >= pageWidth * 0.55) {
+    return false;
+  }
+
+  if (looksLikeStandaloneMetadataLine(trimmed)) {
+    return true;
+  }
+
+  if (!/[\u3400-\u9FFFA-Za-z]/u.test(trimmed)) {
+    return false;
+  }
+
+  return trimmed.length <= 40;
 }

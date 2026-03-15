@@ -315,6 +315,22 @@ describe("buildArticlePageLayout", () => {
       }
     }
   });
+
+  it("keeps narrow stacked colophon lines separate on the closing page", () => {
+    const layout = buildArticlePageLayout(getIssuePage(321));
+
+    expect(layout.bodyBlocks.slice(0, 3)).toEqual([
+      {
+        text: "漢留 第一集 复汉．兴华．拯天下"
+      },
+      {
+        text: "Celestial Reserve vol.1"
+      },
+      {
+        text: "Reviving China"
+      }
+    ]);
+  });
 });
 
 function getIssuePage(pageNumber: number): PageData {

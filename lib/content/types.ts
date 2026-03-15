@@ -56,6 +56,8 @@ export type PageImage = {
   alt: string;
   width: number;
   height: number;
+  x?: number;
+  y?: number;
 };
 
 export type PageData = {

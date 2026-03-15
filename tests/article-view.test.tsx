@@ -1602,4 +1602,592 @@ describe("ArticleView", () => {
     expect(bodyParagraphs[0]?.innerHTML ?? "").toContain("解放运动愈趋低落，民族主义的花朵就愈加怒放。<sup>14</sup>");
     expect(bodyParagraphs.some((paragraph) => paragraph.textContent?.trim() === "14")).toBe(false);
   });
+
+  it("hides the table of contents when an article has no sections", () => {
+    const { container } = render(
+      <PreferenceSync preferences={preferences}>
+        <ArticleView
+          view={{
+            ...view,
+            article: {
+              ...view.article,
+              sections: []
+            },
+            toc: []
+          }}
+          preferences={preferences}
+        />
+      </PreferenceSync>
+    );
+
+    expect(screen.queryByRole("heading", { name: "本文目录" })).toBeNull();
+    expect(container.querySelector(".article-toc")).toBeNull();
+  });
+
+  it("keeps split section headings in document order and removes their source blocks from body text", () => {
+    const splitHeadingView: ArticleViewModel = {
+      ...view,
+      article: {
+        ...view.article,
+        slug: "page-296",
+        titleHans: "总序：《汉留》的守备范围",
+        titleHant: "總序：《漢留》的守備範圍",
+        startPage: 296,
+        endPage: 299,
+        sections: [
+          {
+            level: 2,
+            page: 299,
+            titleHans: "人口问题",
+            titleHant: "人口問題"
+          },
+          {
+            level: 2,
+            page: 299,
+            titleHans: "民族政策：「以少制汉」？「Ｋ签证」再加一批移民？",
+            titleHant: "民族政策：「以少制漢」？「Ｋ簽證」再加一批移民？"
+          }
+        ]
+      },
+      toc: [
+        {
+          id: "page-296-s1",
+          page: 299,
+          titleHans: "人口问题",
+          titleHant: "人口問題"
+        },
+        {
+          id: "page-296-s2",
+          page: 299,
+          titleHans: "民族政策：「以少制汉」？「Ｋ签证」再加一批移民？",
+          titleHant: "民族政策：「以少制漢」？「Ｋ簽證」再加一批移民？"
+        }
+      ],
+      locales: {
+        "zh-Hans": {
+          pages: [
+            {
+              pageId: "issue-01-p299",
+              locale: "zh-Hans",
+              pageNumber: 299,
+              pageLabel: "299",
+              renderedPageAsset: "/page-299.jpg",
+              viewport: { width: 420, height: 595 },
+              textBlocks: [
+                {
+                  x: 54,
+                  y: 40,
+                  width: 300,
+                  height: 12,
+                  text: "我欲如何将它办成一种有机的、灵活的、别出心裁的、介乎主流与非主流之间的「中国研究」平台。"
+                },
+                {
+                  x: 54,
+                  y: 120,
+                  width: 150,
+                  height: 30,
+                  text: "人口问题"
+                },
+                {
+                  x: 54,
+                  y: 200,
+                  width: 270,
+                  height: 28,
+                  text: "民族政策：「以少制汉」？「Ｋ签证」"
+                },
+                {
+                  x: 54,
+                  y: 234,
+                  width: 180,
+                  height: 28,
+                  text: "再加一批移民？"
+                },
+                {
+                  x: 54,
+                  y: 300,
+                  width: 280,
+                  height: 12,
+                  text: "中共在民族政策上套用了苏联的失败办法。"
+                }
+              ],
+              images: []
+            }
+          ]
+        },
+        "zh-Hant": {
+          pages: [
+            {
+              pageId: "issue-01-p299-hant",
+              locale: "zh-Hant",
+              pageNumber: 299,
+              pageLabel: "299",
+              renderedPageAsset: "/page-299.jpg",
+              viewport: { width: 420, height: 595 },
+              textBlocks: [
+                {
+                  x: 54,
+                  y: 40,
+                  width: 300,
+                  height: 12,
+                  text: "我欲如何將它辦成一種有機的、靈活的、別出心裁的、介乎主流與非主流之間的「中國研究」平台。"
+                },
+                {
+                  x: 54,
+                  y: 120,
+                  width: 150,
+                  height: 25,
+                  text: "人口問題"
+                },
+                {
+                  x: 54,
+                  y: 200,
+                  width: 270,
+                  height: 24,
+                  text: "民族政策：「以少制漢」？「Ｋ簽證」"
+                },
+                {
+                  x: 54,
+                  y: 228,
+                  width: 180,
+                  height: 24,
+                  text: "再加一批移民？"
+                },
+                {
+                  x: 54,
+                  y: 300,
+                  width: 280,
+                  height: 10,
+                  text: "中共在民族政策上套用了蘇聯的失敗辦法。"
+                }
+              ],
+              images: []
+            }
+          ]
+        }
+      }
+    };
+
+    const { container } = render(
+      <PreferenceSync preferences={preferences}>
+        <ArticleView view={splitHeadingView} preferences={preferences} />
+      </PreferenceSync>
+    );
+
+    const anchorLabels = Array.from(container.querySelectorAll(".section-anchor")).map((node) => node.textContent?.trim());
+    const bodyText = Array.from(container.querySelectorAll(".article-blocks"))
+      .map((node) => node.textContent ?? "")
+      .join("");
+
+    expect(anchorLabels).toEqual(["人口问题", "民族政策：「以少制汉」？「Ｋ签证」再加一批移民？"]);
+    expect(bodyText).toContain("我欲如何将它办成一种有机的、灵活的、别出心裁的、介乎主流与非主流之间的「中国研究」平台。");
+    expect(bodyText).toContain("中共在民族政策上套用了苏联的失败办法。");
+    expect(bodyText).not.toContain("人口问题");
+    expect(bodyText).not.toContain("民族政策：「以少制汉」？「Ｋ签证」");
+    expect(bodyText).not.toContain("再加一批移民？");
+  });
+
+  it("places positioned images in reading order instead of forcing them to the end of the page", () => {
+    const imageFlowView: ArticleViewModel = {
+      ...view,
+      article: {
+        ...view.article,
+        slug: "page-318",
+        titleHans: "图文测试",
+        titleHant: "圖文測試",
+        startPage: 318,
+        endPage: 318,
+        sections: []
+      },
+      toc: [],
+      locales: {
+        "zh-Hans": {
+          pages: [
+            {
+              pageId: "issue-01-p318-flow",
+              locale: "zh-Hans",
+              pageNumber: 318,
+              pageLabel: "318",
+              renderedPageAsset: "/page-318.jpg",
+              viewport: { width: 420, height: 595 },
+              textBlocks: [
+                {
+                  x: 54,
+                  y: 360,
+                  width: 300,
+                  height: 12,
+                  text: "从玄学角度对满式服装的一图流揭发批判，出现于2025 年底。"
+                },
+                {
+                  x: 54,
+                  y: 400,
+                  width: 300,
+                  height: 12,
+                  text: "按：「厂」为「廠」的简体字。"
+                }
+              ],
+              images: [
+                {
+                  src: "/page-318-01.png",
+                  alt: "《漢留》第 318 页插图 1",
+                  width: 320,
+                  height: 280,
+                  x: 54,
+                  y: 60
+                } as never
+              ]
+            }
+          ]
+        },
+        "zh-Hant": {
+          pages: [
+            {
+              pageId: "issue-01-p318-flow-hant",
+              locale: "zh-Hant",
+              pageNumber: 318,
+              pageLabel: "318",
+              renderedPageAsset: "/page-318.jpg",
+              viewport: { width: 420, height: 595 },
+              textBlocks: [
+                {
+                  x: 54,
+                  y: 360,
+                  width: 300,
+                  height: 12,
+                  text: "從玄學角度對滿式服裝的一圖流揭發批判，出現於2025 年底。"
+                }
+              ],
+              images: [
+                {
+                  src: "/page-318-01.png",
+                  alt: "《漢留》第 318 页插图 1",
+                  width: 320,
+                  height: 280,
+                  x: 54,
+                  y: 60
+                } as never
+              ]
+            }
+          ]
+        }
+      }
+    };
+
+    const { container } = render(
+      <PreferenceSync preferences={preferences}>
+        <ArticleView view={imageFlowView} preferences={preferences} />
+      </PreferenceSync>
+    );
+
+    const pageSection = container.querySelector(".article-page-section");
+    const orderedChildren = Array.from(pageSection?.children ?? []).map((node) =>
+      node instanceof HTMLElement
+        ? node.matches(".article-gallery, .article-blocks")
+          ? node.className
+          : node.tagName.toLowerCase()
+        : ""
+    );
+
+    expect(orderedChildren).toEqual(["article-gallery", "article-blocks"]);
+  });
+
+  it("does not merge a previous page into a later low-position block on the next page", () => {
+    const lateStartView: ArticleViewModel = {
+      ...view,
+      article: {
+        ...view.article,
+        slug: "page-320",
+        titleHans: "版记测试",
+        titleHant: "版記測試",
+        startPage: 320,
+        endPage: 321,
+        sections: []
+      },
+      toc: [],
+      locales: {
+        "zh-Hans": {
+          pages: [
+            {
+              pageId: "issue-01-p320-metadata",
+              locale: "zh-Hans",
+              pageNumber: 320,
+              pageLabel: "320",
+              renderedPageAsset: "/page-320.jpg",
+              viewport: { width: 420, height: 595 },
+              textBlocks: [
+                {
+                  x: 54,
+                  y: 381,
+                  width: 235,
+                  height: 12,
+                  text: "人民币赞助（支付宝）：youtien@gmail.com 或扫码右图"
+                }
+              ],
+              images: []
+            },
+            {
+              pageId: "issue-01-p321-metadata",
+              locale: "zh-Hans",
+              pageNumber: 321,
+              pageLabel: "321",
+              renderedPageAsset: "/page-321.jpg",
+              viewport: { width: 420, height: 595 },
+              textBlocks: [
+                {
+                  x: 54,
+                  y: 310,
+                  width: 162,
+                  height: 28,
+                  text: "漢留 第一集 复汉．兴华．拯天下"
+                }
+              ],
+              images: []
+            }
+          ]
+        },
+        "zh-Hant": {
+          pages: [
+            {
+              pageId: "issue-01-p320-metadata-hant",
+              locale: "zh-Hant",
+              pageNumber: 320,
+              pageLabel: "320",
+              renderedPageAsset: "/page-320.jpg",
+              viewport: { width: 420, height: 595 },
+              textBlocks: [
+                {
+                  x: 54,
+                  y: 381,
+                  width: 235,
+                  height: 12,
+                  text: "人民幣贊助（支付寶）：youtien@gmail.com 或掃碼右圖"
+                }
+              ],
+              images: []
+            },
+            {
+              pageId: "issue-01-p321-metadata-hant",
+              locale: "zh-Hant",
+              pageNumber: 321,
+              pageLabel: "321",
+              renderedPageAsset: "/page-321.jpg",
+              viewport: { width: 420, height: 595 },
+              textBlocks: [
+                {
+                  x: 54,
+                  y: 310,
+                  width: 162,
+                  height: 28,
+                  text: "漢留 第一集 復漢．興華．拯天下"
+                }
+              ],
+              images: []
+            }
+          ]
+        }
+      }
+    };
+
+    const { container } = render(
+      <PreferenceSync preferences={preferences}>
+        <ArticleView view={lateStartView} preferences={preferences} />
+      </PreferenceSync>
+    );
+
+    const bodyParagraphs = Array.from(container.querySelectorAll(".article-blocks p")).map((node) => node.textContent?.trim());
+
+    expect(bodyParagraphs).toEqual([
+      "人民币赞助（支付宝）：youtien@gmail.com 或扫码右图",
+      "漢留 第一集 复汉．兴华．拯天下"
+    ]);
+  });
+
+  it("keeps short metadata lines as separate paragraphs instead of merging them like wrapped prose", () => {
+    const metadataListView: ArticleViewModel = {
+      ...view,
+      article: {
+        ...view.article,
+        slug: "page-320-links",
+        titleHans: "联系信息测试",
+        titleHant: "聯絡資訊測試",
+        startPage: 320,
+        endPage: 320,
+        sections: []
+      },
+      toc: [],
+      locales: {
+        "zh-Hans": {
+          pages: [
+            {
+              pageId: "issue-01-p320-links",
+              locale: "zh-Hans",
+              pageNumber: 320,
+              pageLabel: "320",
+              renderedPageAsset: "/page-320.jpg",
+              viewport: { width: 420, height: 595 },
+              textBlocks: [
+                {
+                  x: 54,
+                  y: 301,
+                  width: 299,
+                  height: 12,
+                  text: "《汉留》知乎专栏：https://www.zhihu.com/column/c_1943336370526454758"
+                },
+                {
+                  x: 54,
+                  y: 317,
+                  width: 271,
+                  height: 12,
+                  text: "《汉留》Ｂ站专区：https://space.bilibili.com/3621415/lists/6317849"
+                },
+                {
+                  x: 54,
+                  y: 333,
+                  width: 203,
+                  height: 12,
+                  text: "《汉留》Pateron 专页：http://patreon.com/youtien"
+                }
+              ],
+              images: []
+            }
+          ]
+        },
+        "zh-Hant": {
+          pages: [
+            {
+              pageId: "issue-01-p320-links-hant",
+              locale: "zh-Hant",
+              pageNumber: 320,
+              pageLabel: "320",
+              renderedPageAsset: "/page-320.jpg",
+              viewport: { width: 420, height: 595 },
+              textBlocks: [
+                {
+                  x: 54,
+                  y: 301,
+                  width: 299,
+                  height: 12,
+                  text: "《漢留》知乎專欄：https://www.zhihu.com/column/c_1943336370526454758"
+                }
+              ],
+              images: []
+            }
+          ]
+        }
+      }
+    };
+
+    const { container } = render(
+      <PreferenceSync preferences={preferences}>
+        <ArticleView view={metadataListView} preferences={preferences} />
+      </PreferenceSync>
+    );
+
+    const bodyParagraphs = Array.from(container.querySelectorAll(".article-blocks p")).map((node) => node.textContent?.trim());
+
+    expect(bodyParagraphs).toEqual([
+      "《汉留》知乎专栏：https://www.zhihu.com/column/c_1943336370526454758",
+      "《汉留》Ｂ站专区：https://space.bilibili.com/3621415/lists/6317849",
+      "《汉留》Pateron 专页：http://patreon.com/youtien"
+    ]);
+  });
+
+  it("keeps short stacked colophon lines separate on closing pages", () => {
+    const colophonView: ArticleViewModel = {
+      ...view,
+      article: {
+        ...view.article,
+        slug: "page-321-colophon",
+        titleHans: "版记短行测试",
+        titleHant: "版記短行測試",
+        startPage: 321,
+        endPage: 321,
+        sections: []
+      },
+      toc: [],
+      locales: {
+        "zh-Hans": {
+          pages: [
+            {
+              pageId: "issue-01-p321-colophon",
+              locale: "zh-Hans",
+              pageNumber: 321,
+              pageLabel: "321",
+              renderedPageAsset: "/page-321.jpg",
+              viewport: { width: 420, height: 595 },
+              textBlocks: [
+                {
+                  x: 54,
+                  y: 310,
+                  width: 162,
+                  height: 28,
+                  text: "漢留 第一集 复汉．兴华．拯天下"
+                },
+                {
+                  x: 54,
+                  y: 344,
+                  width: 95,
+                  height: 14,
+                  text: "Celestial Reserve vol.1"
+                },
+                {
+                  x: 54,
+                  y: 362,
+                  width: 61,
+                  height: 13,
+                  text: "Reviving China"
+                }
+              ],
+              images: []
+            }
+          ]
+        },
+        "zh-Hant": {
+          pages: [
+            {
+              pageId: "issue-01-p321-colophon-hant",
+              locale: "zh-Hant",
+              pageNumber: 321,
+              pageLabel: "321",
+              renderedPageAsset: "/page-321.jpg",
+              viewport: { width: 420, height: 595 },
+              textBlocks: [
+                {
+                  x: 54,
+                  y: 310,
+                  width: 162,
+                  height: 28,
+                  text: "漢留 第一集 復漢．興華．拯天下"
+                },
+                {
+                  x: 54,
+                  y: 344,
+                  width: 95,
+                  height: 14,
+                  text: "Celestial Reserve vol.1"
+                },
+                {
+                  x: 54,
+                  y: 362,
+                  width: 61,
+                  height: 13,
+                  text: "Reviving China"
+                }
+              ],
+              images: []
+            }
+          ]
+        }
+      }
+    };
+
+    const { container } = render(
+      <PreferenceSync preferences={preferences}>
+        <ArticleView view={colophonView} preferences={preferences} />
+      </PreferenceSync>
+    );
+
+    const bodyParagraphs = Array.from(container.querySelectorAll(".article-blocks p")).map((node) => node.textContent?.trim());
+
+    expect(bodyParagraphs).toEqual(["漢留 第一集 复汉．兴华．拯天下", "Celestial Reserve vol.1", "Reviving China"]);
+  });
 });
